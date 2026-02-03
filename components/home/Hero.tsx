@@ -1,60 +1,71 @@
-// /components/home/Hero.tsx
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+// components/home/Hero.tsx
+"use client";
+
+import Image from "next/image";
 
 export default function Hero() {
   return (
-    <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-primary via-primary-800 to-primary-900">
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItMnptMCAydjJoLTJ2LTJoMnptMCAyaDJ2Mmgtdi0yem0yIDB2Mmgydi0yaC0yem0yIDB2Mmgydi0yaC0yem0wIDJ2Mmgydi0yaC0yem0wIDJoLTJ2Mmgydi0yem0tMiAwdi0yaDJ2MmgtMnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
-      
-      <div className="container-custom relative z-10">
-        <div className="max-w-3xl">
-          <div className="mb-6 inline-block rounded-full bg-secondary/20 px-4 py-2">
-            <span className="text-sm font-medium text-white">Premium Housing Design</span>
-          </div>
-          
-          <h1 className="mb-6 text-5xl font-bold leading-tight text-white md:text-6xl lg:text-7xl">
-            Transform Your Space Into a
-            <span className="block text-secondary"> Dream Home</span>
-          </h1>
-          
-          <p className="mb-8 text-lg text-white/80 md:text-xl max-w-2xl">
-            Expert interior design and architecture services that bring your vision to life. 
-            We create spaces that inspire, comfort, and reflect your unique style.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/schedule">
-              <Button size="lg" variant="secondary" className="group">
-                Schedule Consultation
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Button>
-            </Link>
-            <Link href="/portfolio">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-primary">
-                View Portfolio
-              </Button>
-            </Link>
-          </div>
+    <section className="relative w-full h-screen flex flex-col overflow-hidden">
+      {/* 
+        PARALLAX BACKGROUND IMAGE
+        'fixed bottom-0': Pins the image to the bottom of the viewport.
+        'z-0': Puts it at the very back.
+        As you scroll, this image stays still while the content slides over it.
+        Your next sections (Services, etc.) will eventually scroll up and cover this.
+      */}
+      <div className="fixed bottom-0 left-0 w-full h-[120vh] -z-10 grayscale-[80%] contrast-125">
+        <Image
+          src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2670&auto=format&fit=crop"
+          alt="Modern architecture sketch"
+          fill
+          className="object-cover"
+          priority
+          quality={90}
+        />
+        {/* Slight darkening for better text contrast if needed elsewhere */}
+        <div className="absolute inset-0 bg-black/20" />
+      </div>
 
-          {/* Stats */}
-          <div className="mt-16 grid grid-cols-3 gap-8">
-            <div>
-              <div className="text-4xl font-bold text-secondary">500+</div>
-              <div className="mt-1 text-sm text-white/70">Projects Completed</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-secondary">15+</div>
-              <div className="mt-1 text-sm text-white/70">Years Experience</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold text-secondary">98%</div>
-              <div className="mt-1 text-sm text-white/70">Client Satisfaction</div>
-            </div>
-          </div>
+      {/* 
+        TOP HALF (Colored Overlay)
+        'h-1/2': Takes up exactly 50% of the screen height.
+        'bg-background': Uses your global CSS variables.
+          - Light Mode: White
+          - Dark Mode: Dark Teal (from your globals.css)
+        'z-10': Sits on top of the image, hiding the top part of it.
+      */}
+      <div className="h-1/2 w-full bg-background z-10 transition-colors duration-300 relative">
+        {/* Optional Gradient to smooth the transition into the image */}
+        <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-b from-background to-transparent opacity-100" />
+      </div>
+
+      {/* 
+        CONTENT AREA - Now positioned at top left
+        'absolute top-0 left-0': Position text absolutely over the top half.
+        'z-20': Ensures text is above the color overlay.
+        'items-start justify-start': Aligns content to the top left.
+        'text-left': Aligns text to the left.
+      */}
+      <div className="absolute top-0 left-0 w-full h-1/2 z-20 flex flex-col items-start justify-start pt-20 pointer-events-none">
+        <div className="container-custom w-full pointer-events-auto">
+          <h1 className="text-foreground mb-6 tracking-loose text-left">
+            Home & Space<br />
+           Improvement <br />Studio
+          </h1>
+
+          <p className="text-lg md:text-xl max-w-xl mb-10 text-left tracking-tight text-secondary">
+            Izinkan team kami mengetuk <br />
+            pintu rumah Anda! Knock-knock
+          </p>         
         </div>
       </div>
+
+      {/* 
+        BOTTOM HALF (Window to Image)
+        This div is invisible (pointer-events-none), it just marks the space where the image shows through.
+      */}
+      <div className="h-1/2 w-full relative z-0 pointer-events-none" />
+
     </section>
   );
 }

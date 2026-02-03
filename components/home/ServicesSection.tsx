@@ -1,8 +1,8 @@
 // /components/home/ServicesSection.tsx
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+"use client";
+
 import { Home, Ruler, Palette, Layers } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 const services = [
   {
@@ -29,44 +29,51 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section className="section-padding bg-white">
-      <div className="container-custom">
-        <div className="mx-auto max-w-2xl text-center mb-12">
-          <h2 className="mb-4 text-primary">Our Services</h2>
-          <p className="text-lg text-primary/70">
+    <section className="section-padding bg-background transition-colors duration-300 min-h-screen flex items-center">
+      <div className="container-custom pt-20">
+        {/* Header */}
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <h2 className="mb-4 text-foreground">Our Services</h2>
+          <p className="text-lg text-muted-foreground">
             Comprehensive design solutions tailored to bring your vision to life
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {/* Services Grid */}
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
-              <Card 
+              <div 
                 key={index} 
-                className="group transition-all hover:shadow-lg hover:border-secondary"
+                className="group relative p-6 rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-ring"
               >
-                <CardHeader>
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-secondary/10 text-secondary group-hover:bg-secondary group-hover:text-white transition-colors">
-                    <Icon className="h-6 w-6" />
-                  </div>
-                  <CardTitle className="text-xl">{service.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-primary/60">
-                    {service.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+                {/* Icon */}
+                <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-ring transition-all duration-300 group-hover:bg-ring group-hover:text-white">
+                  <Icon className="h-6 w-6" />
+                </div>
+                
+                {/* Title */}
+                <h3 className="text-xl font-bold mb-3 text-card-foreground">
+                  {service.title}
+                </h3>
+                
+                {/* Description */}
+                <p className="text-muted-foreground leading-relaxed">
+                  {service.description}
+                </p>
+              </div>
             );
           })}
         </div>
 
-        <div className="mt-12 text-center">
-          <Link href="/services">
-            <Button variant="outline" size="lg">
-              View All Services
-            </Button>
+        {/* CTA Button */}
+        <div className="my-10 text-center">
+          <Link 
+            href="/services"
+            className="inline-flex items-center justify-center px-8 py-3 rounded-md border-2 border-border bg-background text-foreground font-medium transition-all duration-300 hover:bg-ring hover:text-white hover:border-ring"
+          >
+            View All Services
           </Link>
         </div>
       </div>

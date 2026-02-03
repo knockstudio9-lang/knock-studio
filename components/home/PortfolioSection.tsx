@@ -1,38 +1,39 @@
-// /components/home/PortfolioSection.tsx
+// /omponents/home/PortfolioSection.tsx
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import Image from "next/image";
 
 const projects = [
   {
-    title: "Modern Villa",
-    category: "Architecture",
-    image: "bg-gradient-to-br from-primary to-primary-700",
+    title: "Vila Moderna",
+    category: "Arsitektur",
+    image: "https://images.unsplash.com/photo-1618221195710-7978d2985c2c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
   },
   {
-    title: "Luxury Apartment",
-    category: "Interior Design",
-    image: "bg-gradient-to-br from-secondary to-secondary-700",
+    title: "Apartemen Mewah",
+    category: "Desain Interior",
+    image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
   },
   {
-    title: "Minimalist Home",
-    category: "Complete Renovation",
-    image: "bg-gradient-to-br from-primary-600 to-primary-800",
+    title: "Rumah Minimalis",
+    category: "Renovasi Lengkap",
+    image: "https://images.unsplash.com/photo-1600566753376-12c8ac7e9e48?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
   },
   {
-    title: "Urban Loft",
-    category: "Space Planning",
-    image: "bg-gradient-to-br from-secondary-600 to-secondary-800",
+    title: "Loft Urban",
+    category: "Perencanaan Ruang",
+    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80",
   },
 ];
 
 export default function PortfolioSection() {
   return (
-    <section className="section-padding bg-white">
-      <div className="container-custom">
-        <div className="mx-auto max-w-2xl text-center mb-12">
-          <h2 className="mb-4 text-primary">Featured Projects</h2>
-          <p className="text-lg text-primary/70">
-            Explore our portfolio of exceptional design projects
+    <section className="section-padding bg-background py-10 transition-colors duration-300">
+      <div className="container-custom pt-20">
+        <div className="mx-auto max-w-2xl text-center mb-16">
+          <h2 className="mb-4 text-foreground">Proyek Unggulan</h2>
+          <p className="text-lg text-muted-foreground">
+            Jelajahi portofolio proyek desain luar biasa kami
           </p>
         </div>
 
@@ -41,9 +42,15 @@ export default function PortfolioSection() {
             <Link 
               key={index}
               href="/portfolio"
-              className="group relative aspect-[3/4] overflow-hidden rounded-xl"
+              className="group relative aspect-[3/4] overflow-hidden rounded-xl border border-border"
             >
-              <div className={`absolute inset-0 ${project.image} transition-transform duration-300 group-hover:scale-110`}>
+              <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-110">
+                <Image
+                  src={project.image}
+                  alt={project.title}
+                  fill
+                  className="object-cover"
+                />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
               </div>
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
@@ -52,14 +59,6 @@ export default function PortfolioSection() {
               </div>
             </Link>
           ))}
-        </div>
-
-        <div className="mt-12 text-center">
-          <Link href="/portfolio">
-            <Button variant="default" size="lg">
-              View Full Portfolio
-            </Button>
-          </Link>
         </div>
       </div>
     </section>

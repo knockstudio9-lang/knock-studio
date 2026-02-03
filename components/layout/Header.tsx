@@ -1,79 +1,142 @@
-// /components/layout/Header.tsx
+// components/layout/Header.tsx
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import Image from "next/image";
+import { useState, useEffect } from "react";
+import { Menu, X, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/components/providers/ThemeProvider";
 
 const navigation = [
   { name: "Home", href: "/" },
   { name: "About", href: "/about" },
   { name: "Services", href: "/services" },
   { name: "Portfolio", href: "/portfolio" },
-  { name: "Schedule", href: "/schedule" },
 ];
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-tertiary bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm"
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <nav className="container-custom flex items-center justify-between py-4">
-        {/* Logo */}
-        <Link href="/" className="flex items-center space-x-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
-            <span className="text-xl font-bold text-white">K</span>
-          </div>
-          <span className="text-2xl font-bold text-primary">Knock</span>
+        {/* 1. LEFT SIDE: Logo */}
+        <Link href="/" className="flex items-center z-50 relative">
+          <Image
+            src="/logo.gif" 
+            alt="Knock Logo" 
+            width={800} 
+            height={40}
+            className="h-auto w-32" 
+          />
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex md:items-center md:gap-8">
+        {/* 2. CENTER SIDE: Navigation Links */}
+        <div className="hidden md:flex flex-1 justify-center items-center gap-8">
           {navigation.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="text-sm font-medium text-primary transition-colors hover:text-secondary"
+              className="text-sm font-medium header-text transition-colors hover:text-[var(--color-secondary)]"
             >
               {item.name}
             </Link>
           ))}
-          <Button size="sm">Contact Us</Button>
         </div>
 
-        {/* Mobile menu button */}
-        <button
-          type="button"
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          <span className="sr-only">Toggle menu</span>
-          {mobileMenuOpen ? (
-            <X className="h-6 w-6 text-primary" />
-          ) : (
-            <Menu className="h-6 w-6 text-primary" />
-          )}
-        </button>
+        {/* 3. RIGHT SIDE: Actions (Theme & Schedule) */}
+        <div className="hidden md:flex items-center gap-4">
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-md transition-colors hover:bg-muted"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5 header-text" />
+            ) : (
+              <Moon className="h-5 w-5 header-text" />
+            )}
+          </button>
+
+          {/* Schedule Meeting Button */}
+          <Button
+            size="sm"
+            className="header-button-bg header-button-text hover:opacity-90"
+          >
+            Schedule Meeting
+          </Button>
+        </div>
+
+        {/* Mobile menu button (Visible only on mobile) */}
+        <div className="flex items-center gap-2 md:hidden">
+          {/* Mobile Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-md transition-colors z-50 relative hover:bg-muted"
+            aria-label="Toggle theme"
+          >
+            {theme === "dark" ? (
+              <Sun className="h-5 w-5 header-text" />
+            ) : (
+              <Moon className="h-5 w-5 header-text" />
+            )}
+          </button>
+
+          {/* Hamburger Menu Button */}
+          <button
+            type="button"
+            className="p-2 z-50 relative"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <span className="sr-only">Toggle menu</span>
+            {mobileMenuOpen ? (
+              <X className="h-6 w-6 header-text" />
+            ) : (
+              <Menu className="h-6 w-6 header-text" />
+            )}
+          </button>
+        </div>
       </nav>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-tertiary bg-white">
+        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-md absolute top-full left-0 w-full">
           <div className="container-custom space-y-1 py-4">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="block rounded-md px-3 py-2 text-base font-medium text-primary hover:bg-tertiary"
+                className="block rounded-md px-3 py-2 text-base font-medium text-foreground hover:bg-muted hover:text-[var(--color-secondary)]"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
             <div className="pt-4">
-              <Button className="w-full" size="sm">
-                Contact Us
+              <Button 
+                className="w-full header-button-bg header-button-text hover:opacity-90" 
+                size="sm"
+              >
+                Schedule Meeting
               </Button>
             </div>
           </div>
