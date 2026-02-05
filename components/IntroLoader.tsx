@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { useTheme } from "@/components/providers/ThemeProvider"; // Import useTheme hook
 
 interface IntroLoaderProps {
   onComplete: () => void;
@@ -14,8 +15,16 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
   const [gifLoaded, setGifLoaded] = useState(false);
   const [showClickPrompt, setShowClickPrompt] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+  const [mounted, setMounted] = useState(false); // Add mounted state
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const { theme } = useTheme(); // Get current theme
+
+  // Set mounted state to avoid hydration mismatch
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   // Initialize audio (but don't play yet)
   useEffect(() => {
@@ -82,6 +91,10 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
     setGifLoaded(true);
   };
 
+  // Determine which logo to use based on theme
+  // Only use this after component is mounted to avoid hydration mismatch
+  const logoSrc = mounted && theme === "light" ? "/logo-black.gif" : "/logo.gif";
+
   return (
     <>
       {/* Click prompt screen */}
@@ -104,7 +117,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
               transition={{ duration: 0.6 }}
             >
               <Image
-                src="/logo.gif"
+                src={logoSrc} // Use theme-based logo
                 alt="Logo"
                 fill
                 className="object-contain"
@@ -192,7 +205,7 @@ export default function IntroLoader({ onComplete }: IntroLoaderProps) {
               }}
             >
               <Image
-                src="/logo.gif"
+                src={logoSrc} // Use theme-based logo
                 alt="Loading animation"
                 fill
                 className="object-contain"
