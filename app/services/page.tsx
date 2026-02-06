@@ -289,12 +289,12 @@ export default function ServicesPage() {
             {additionalServices.map((service, index) => {
               const Icon = service.icon;
               return (
-                <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[var(--color-secondary)]">
+                <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-[var(--color-secondary)] bg-background">
                   <CardHeader>
-                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] group-hover:bg-[var(--color-secondary)] group-hover:text-white transition-colors">
+                    <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg  text-[var(--color-secondary)] group-hover:bg-[var(--color-secondary)] group-hover:text-white transition-colors">
                       <Icon className="h-6 w-6" />
                     </div>
-                    <CardTitle className="text-xl">{service.title}</CardTitle>
+                    <CardTitle className="text-xl text-foreground">{service.title}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <CardDescription className="text-muted-foreground mb-4">
@@ -322,7 +322,7 @@ export default function ServicesPage() {
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
-            <Card className="p-6">
+            <Card className="p-6 bg-background">
               <div className="flex mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
@@ -340,7 +340,7 @@ export default function ServicesPage() {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 bg-background">
               <div className="flex mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
@@ -358,7 +358,7 @@ export default function ServicesPage() {
               </div>
             </Card>
 
-            <Card className="p-6">
+            <Card className="p-6 bg-background">
               <div className="flex mb-4">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
