@@ -92,7 +92,11 @@ export default function Header() {
             size="sm"
             className="header-button-bg header-button-text hover:opacity-90 hover:text-white"
           >
-            Schedule Meeting
+            <Link
+              href="/schedule"
+            >
+              Schedule Meeting
+            </Link>
           </Button>
         </div>
 
