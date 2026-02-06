@@ -15,7 +15,6 @@ export default function LayoutWrapper({
 }) {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
-  const isUnderConstructionPage = pathname === "/under-construction";
   
   // Calculate initial state without side effects
   const getInitialHeaderState = () => {
@@ -57,9 +56,6 @@ export default function LayoutWrapper({
   }, [isHomePage, showHeader]);
 
   // If it's the under construction page, show only that
-  if (isUnderConstructionPage) {
-    return <UnderConstruction />;
-  }
 
   return (
     <>
