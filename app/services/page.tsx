@@ -262,12 +262,7 @@ export default function ServicesPage() {
                         ))}
                       </div>
                     </div>
-                    
-                    <Link href="/schedule">
-                      <Button className="bg-[var(--color-secondary)] text-white hover:bg-[var(--color-secondary-600)] transition-all duration-300">
-                        Konsultasi untuk {service.title}
-                      </Button>
-                    </Link>
+
                   </div>
                 </div>
               );
