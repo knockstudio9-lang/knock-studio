@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Edit, Plus, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Edit, Plus, Image as ImageIcon, GripVertical } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -38,6 +38,9 @@ interface Project {
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [draggedProject, setDraggedProject] = useState<Project | null>(null);
+  const [dragOverProject, setDragOverProject] = useState<Project | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -47,7 +50,9 @@ export default function PortfolioPage() {
     try {
       const response = await fetch('/api/portfolio');
       const data = await response.json();
-      setProjects(data);
+      // Explicitly sort by order field to ensure correct display order
+      const sortedProjects = data.sort((a: Project, b: Project) => a.order - b.order);
+      setProjects(sortedProjects);
     } catch (error) {
       toast.error('Failed to fetch projects');
     } finally {
@@ -71,6 +76,83 @@ export default function PortfolioPage() {
       }
     } catch (error) {
       toast.error('Failed to delete project');
+    }
+  };
+
+  const handleDragStart = (e: React.DragEvent, project: Project) => {
+    setDraggedProject(project);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, project: Project) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverProject(project);
+  };
+
+  const handleDragLeave = () => {
+    setDragOverProject(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetProject: Project) => {
+    e.preventDefault();
+    
+    if (!draggedProject || draggedProject.id === targetProject.id) {
+      setDraggedProject(null);
+      setDragOverProject(null);
+      return;
+    }
+
+    // Create a new array with reordered projects
+    const draggedIndex = projects.findIndex(p => p.id === draggedProject.id);
+    const targetIndex = projects.findIndex(p => p.id === targetProject.id);
+    
+    const newProjects = [...projects];
+    newProjects.splice(draggedIndex, 1);
+    newProjects.splice(targetIndex, 0, draggedProject);
+    
+    // Update order values based on new positions
+    const reorderedProjects = newProjects.map((project, index) => ({
+      ...project,
+      order: index
+    }));
+    
+    setProjects(reorderedProjects);
+    setDraggedProject(null);
+    setDragOverProject(null);
+    
+    // Save the new order to the database
+    await saveProjectOrder(reorderedProjects);
+  };
+
+  const saveProjectOrder = async (reorderedProjects: Project[]) => {
+    setIsReordering(true);
+    
+    try {
+      const projectOrders = reorderedProjects.map(project => ({
+        id: project.id,
+        order: project.order
+      }));
+      
+      const response = await fetch('/api/portfolio/reorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ projectOrders }),
+      });
+      
+      if (response.ok) {
+        toast.success('Project order updated successfully');
+      } else {
+        throw new Error('Failed to update project order');
+      }
+    } catch (error) {
+      toast.error('Failed to update project order');
+      // Re-fetch projects to restore correct order
+      fetchProjects();
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -100,6 +182,13 @@ export default function PortfolioPage() {
         </Link>
       </div>
 
+      {isReordering && (
+        <div className="mb-4 p-2 bg-blue-50 text-blue-700 rounded-md flex items-center">
+          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-700 mr-2"></div>
+          Updating project order...
+        </div>
+      )}
+
       {/* Projects Grid */}
       {projects.length === 0 ? (
         <div className="text-center py-12">
@@ -116,8 +205,21 @@ export default function PortfolioPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map((project) => (
-            <Card key={project.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card 
+              key={project.id} 
+              className={`overflow-hidden hover:shadow-lg transition-shadow ${
+                dragOverProject?.id === project.id ? 'ring-2 ring-primary' : ''
+              }`}
+              draggable
+              onDragStart={(e) => handleDragStart(e, project)}
+              onDragOver={(e) => handleDragOver(e, project)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, project)}
+            >
               <div className="relative h-48">
+                <div className="absolute top-2 left-2 z-10 bg-white/80 rounded p-1 cursor-move">
+                  <GripVertical className="w-4 h-4 text-gray-600" />
+                </div>
                 <Image
                   src={project.afterImage}
                   alt={project.title}

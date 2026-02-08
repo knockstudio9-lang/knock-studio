@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 // app/(site)/portfolio/page.tsx
 "use client";
 
@@ -19,10 +18,11 @@ interface Project {
   area: string;
   completion: string;
   description: string;
-  beforeImage: string;
+  beforeImage?: string;
   afterImage: string;
   galleryImages: string[];
   tags: string[];
+  order: number; // Added order field
 }
 
 export default function PortfolioPage() {
@@ -46,7 +46,9 @@ export default function PortfolioPage() {
         }
         
         const data = await response.json();
-        setProjects(data);
+        // The API already returns projects sorted by order, but we ensure it here as well
+        const sortedProjects = data.sort((a: Project, b: Project) => a.order - b.order);
+        setProjects(sortedProjects);
       } catch (err) {
         console.error('Error fetching projects:', err);
         setError('Failed to load projects. Please try again later.');

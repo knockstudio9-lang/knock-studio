@@ -23,7 +23,7 @@ export const projects = pgTable('projects', {
   budget: varchar('budget', { length: 100 }),
   team: text('team'),
   // Status and ordering
-  status: varchar('status', { length: 20 }).default('published'), // published, draft, archived
+  status: varchar('status', { length: 20 }).default('published'),
   featured: boolean('featured').default(false),
   order: integer('order').default(0),
   createdAt: timestamp('created_at').defaultNow(),
