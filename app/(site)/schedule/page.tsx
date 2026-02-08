@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { User, MapPin, Home, DollarSign, Check } from "lucide-react";
+import { User, MapPin, Home, Check } from "lucide-react";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -153,15 +153,17 @@ export default function ContactPage() {
                     Estimasi Budget <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">
+                      RP
+                    </span>
                     <input
                       id="budget"
                       type="text"
                       required
                       value={formData.budget}
                       onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      className="w-full pl-11 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                      placeholder="contoh: Rp 100.000.000 - Rp 200.000.000"
+                      className="w-full pl-14 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                      placeholder="contoh: 100.000.000 - 200.000.000"
                     />
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">

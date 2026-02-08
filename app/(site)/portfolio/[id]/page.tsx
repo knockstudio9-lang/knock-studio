@@ -580,7 +580,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           )} */}
 
           {/* Before/After Animation - Full Width - Only show if beforeImage exists */}
-          {project.beforeImage && (
+          {/* {project.beforeImage && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -596,7 +596,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
             </motion.div>
-          )}
+          )} */}
 
           {/* Gallery Images */}
           {project.galleryImages.map((img, index) => (

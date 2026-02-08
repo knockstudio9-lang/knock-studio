@@ -10,6 +10,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 // Define types for our components
+interface BeforeAfterProps {
+  beforeSrc: string;
+  afterSrc: string;
+  className?: string;
+}
+
 interface Project {
   id: number;
   title: string;
@@ -24,6 +30,131 @@ interface Project {
   galleryImages: string[];
   tags: string[];
 }
+
+// Before/After comparison component
+const BeforeAfterComparison = ({ beforeSrc, afterSrc, className = "" }: BeforeAfterProps) => {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const [isDragging, setIsDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = () => setIsDragging(true);
+  const handleMouseUp = () => setIsDragging(false);
+  
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    
+    setSliderPosition(Math.min(100, Math.max(0, percentage)));
+  };
+
+  const handleTouchMove = (e: TouchEvent<HTMLDivElement>) => {
+    if (!isDragging) return;
+    
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    const percentage = (x / rect.width) * 100;
+    
+    setSliderPosition(Math.min(100, Math.max(0, percentage)));
+  };
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => setIsDragging(false);
+    
+    if (isDragging) {
+      window.addEventListener('mouseup', handleGlobalMouseUp);
+      window.addEventListener('touchend', handleGlobalMouseUp);
+    }
+    
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, [isDragging]);
+
+  // Handle empty beforeSrc
+  if (!beforeSrc) {
+    return (
+      <div className={`relative overflow-hidden ${className}`}>
+        <div className="absolute inset-0">
+          <Image
+            src={afterSrc}
+            alt="After"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 text-sm rounded-md">
+          After
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      ref={containerRef}
+      className={`relative overflow-hidden ${className}`}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onTouchStart={handleMouseDown}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseUp}
+    >
+      {/* After image (full background) */}
+      <div className="absolute inset-0">
+        <Image
+          src={afterSrc}
+          alt="After"
+          fill
+          className="object-cover"
+        />
+      </div>
+      
+      {/* Before image (clipped) */}
+      <div 
+        className="absolute inset-0 overflow-hidden"
+        style={{ width: `${sliderPosition}%` }}
+      >
+        <Image
+          src={beforeSrc}
+          alt="Before"
+          fill
+          className="object-cover"
+        />
+      </div>
+      
+      {/* Slider line */}
+      <div 
+        className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize"
+        style={{ left: `${sliderPosition}%` }}
+      >
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-lg">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 10H16M10 4L16 10L10 16" stroke="black" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      
+      {/* Labels */}
+      <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 text-sm rounded-md">
+        Before
+      </div>
+      <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 text-sm rounded-md">
+        After
+      </div>
+    </div>
+  );
+};
 
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,9 +191,10 @@ export default function PortfolioPage() {
 
   const selectedProject = projects[selectedProjectIndex];
   
-  // Get all images for the current project - only include after and gallery images
+  // Get all images for the current project - reordered to have After first, then Before & After
   const allProjectImages = selectedProject ? [
     { type: 'after' as const, label: 'After' },
+    ...(selectedProject.beforeImage ? [{ type: 'before-after' as const, label: 'Before & After' }] : []),
     ...selectedProject.galleryImages.map((_, index) => ({ 
       type: 'gallery' as const, 
       label: `Gallery ${index + 1}` 
@@ -379,6 +511,21 @@ export default function PortfolioPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
               </motion.div>
+            // ) : currentImageType && currentImageType.type === 'before-after' ? (
+            //   <motion.div 
+            //     key={`before-after-${selectedProject.id}`} 
+            //     className="w-full h-full pointer-events-auto"
+            //     initial={{ opacity: 0 }}
+            //     animate={{ opacity: 1 }}
+            //     exit={{ opacity: 0 }}
+            //     transition={{ duration: 0.3 }}
+            //   >
+            //     <BeforeAfterComparison
+            //       beforeSrc={selectedProject.beforeImage}
+            //       afterSrc={selectedProject.afterImage}
+            //       className="w-full h-full"
+            //     />
+            //   </motion.div>
             ) : currentImageType && currentImageType.type === 'gallery' ? (
               <motion.div 
                 key={`gallery-${selectedProject.id}-${selectedImageIndex}`} 
@@ -389,7 +536,7 @@ export default function PortfolioPage() {
                 transition={{ duration: 0.3 }}
               >
                 <Image
-                  src={selectedProject.galleryImages[selectedImageIndex - 1]}
+                  src={selectedProject.galleryImages[selectedImageIndex - (selectedProject.beforeImage ? 2 : 1)]}
                   alt={`${selectedProject.title} - ${currentImageType.label}`}
                   fill
                   className="object-cover"

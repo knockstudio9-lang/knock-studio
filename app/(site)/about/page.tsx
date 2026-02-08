@@ -1,4 +1,4 @@
-// app/about/page.tsx
+// app/(site)/about/page.tsx
 "use client";
 
 import { CheckCircle, Users, Award, Lightbulb, ArrowRight } from "lucide-react";
@@ -69,7 +69,7 @@ export default function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/schedule">
                 <Button size="lg" className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-800)] transition-all duration-300 group">
-                  Jadwalkan Konsultasi
+                  Konsultasi dengan Kami
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
@@ -120,7 +120,7 @@ export default function AboutPage() {
                KNOCK adalah <span className="font-bold"> Home & Space Improvement Studio </span> yang membantu pemilik rumah meningkatkan kualitas ruang hidup—baik dari sisi fungsi, estetika, maupun kenyamanan. Kami percaya bahwa rumah bukan sekedar membangun atau memperbaiki, tetapi tentang meningkatkan cara sebuah ruang digunakan dan dirasakan. Karena itu, setiap proyek KNOCK dimulai dengan pemahaman kebutuhan klien, visualisasi desain yang jelas, dan perencanaan yang terukur.
               </p>
 
-              <div className="grid grid-cols-2 gap-8 pt-8">
+              {/* <div className="grid grid-cols-2 gap-8 pt-8">
                 <div className="border-l-4 border-(--color-secondary) pl-6">
                   <div className="text-4xl font-bold text-foreground mb-2">500+</div>
                   <div className="text-muted-foreground">Proyek Selesai</div>
@@ -129,7 +129,7 @@ export default function AboutPage() {
                   <div className="text-4xl font-bold text-foreground mb-2">15+</div>
                   <div className="text-muted-foreground">Tahun Pengalaman</div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Image Side */}
