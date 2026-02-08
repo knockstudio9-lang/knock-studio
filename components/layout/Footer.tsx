@@ -1,7 +1,7 @@
 // /components/layout/Footer.tsx
 import Link from "next/link";
 import Image from "next/image";
-import { Mail, Instagram, MessageCircle } from "lucide-react";
+import { Mail, Instagram, MessageCircle, MapPin } from "lucide-react";
 import { useTheme } from "@/components/providers/ThemeProvider";
 
 export default function Footer() {
@@ -61,6 +61,14 @@ export default function Footer() {
               <Mail className="h-4 w-4" />
               <span>Email</span>
             </Link>
+          </div>
+
+          {/* Address */}
+          <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4 flex-shrink-0" />
+            <span className="text-center">
+              Jl. Aria Putra No. A3, Serua Indah | Ciputat - Tangerang Selatan
+            </span>
           </div>
 
           {/* Copyright */}

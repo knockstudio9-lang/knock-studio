@@ -27,7 +27,7 @@ const services = [
     icon: Home,
     title: "Home Renovation",
     description: "Renovasi rumah skala kecil hingga menengah dengan pengerjaan rapih dan terukur.",
-    duration: "2-4 minggu",
+    duration: "1-4 bulan",
     features: [
       "Renovasi ruang tamu dan keluarga",
       "Perbaikan struktur dan finishing",
@@ -301,7 +301,7 @@ export default function ServicesPage() {
       {/* Services Comparison Section */}
       <section className="py-20 pt-28 bg-muted/30">
         <div className="container-custom">
-          <div className="mx-auto max-w-2xl text-center mb-16">
+          <div className="mx-auto max-w-3xl text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Bandingkan Layanan Kami</h2>
             <p className="text-xl text-muted-foreground">
               Temukan layanan yang paling sesuai dengan kebutuhan renovasi Anda
@@ -378,41 +378,72 @@ export default function ServicesPage() {
           </div>
 
           <div className="max-w-5xl mx-auto">
-            {/* Desktop view with horizontal flow */}
+            {/* Desktop view with 2-column snake layout */}
             <div className="hidden lg:block relative">
-              <div className="grid grid-cols-4 gap-8 max-w-6xl mx-auto">
-                {workSteps.map((step, index) => {
-                  const Icon = step.icon;
-                  
-                  return (
-                    <div key={index} className="flex flex-col items-center relative">
-                      <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
-                        <div className="flex items-center gap-3 mb-3">
-                          <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                            <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+              <div className="grid grid-cols-2 gap-8">
+                {/* Left Column - First half of steps */}
+                <div className="space-y-8">
+                  {workSteps.slice(0, Math.ceil(workSteps.length / 2)).map((step, index) => {
+                    const Icon = step.icon;
+                    const isLastInColumn = index === Math.ceil(workSteps.length / 2) - 1;
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center relative">
+                        <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+                            </div>
+                            <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
                           </div>
-                          <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
+                          <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
+                          <p className="text-sm text-muted-foreground">{step.subtitle}</p>
                         </div>
-                        <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
-                        <p className="text-sm text-muted-foreground">{step.subtitle}</p>
+                        
+                        {/* Arrow connector for vertical flow within column */}
+                        {!isLastInColumn && (
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
+                            <ArrowRight className="h-6 w-6 text-gray-300 transform rotate-90" />
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Arrow connector for desktop - horizontal for same row */}
-                      {index < workSteps.length - 1 && index % 4 !== 3 && (
-                        <div className="absolute top-1/2 -right-4 transform -translate-y-1/2 z-10">
-                          <ArrowRight className="h-6 w-6 text-gray-300" />
+                    );
+                  })}
+                </div>
+                
+                {/* Right Column - Second half of steps */}
+                <div className="space-y-8">
+                  {workSteps.slice(Math.ceil(workSteps.length / 2)).map((step, index) => {
+                    const Icon = step.icon;
+                    const actualIndex = index + Math.ceil(workSteps.length / 2);
+                    const isFirstInColumn = index === 0;
+                    const isLastInColumn = actualIndex === workSteps.length - 1;
+                    
+                    return (
+                      <div key={actualIndex} className="flex flex-col items-center relative">
+                        <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
+                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+                            </div>
+                            <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
+                          </div>
+                          <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
+                          <p className="text-sm text-muted-foreground">{step.subtitle}</p>
                         </div>
-                      )}
-                      
-                      {/* Arrow connector for desktop - diagonal to next row */}
-                      {index === 3 && (
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
-                          <ArrowRight className="h-6 w-6 text-gray-300 rotate-90" />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        
+                       
+                        
+                        {/* Arrow connector for vertical flow within column */}
+                        {!isLastInColumn && (
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
+                            <ArrowRight className="h-6 w-6 text-gray-300 transform rotate-90" />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
             
@@ -422,7 +453,7 @@ export default function ServicesPage() {
                 const Icon = step.icon;
                 
                 return (
-                  <div key={index} className=" rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                  <div key={index} className="rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex items-center gap-3 mb-3">
                       <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
                         <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
@@ -442,7 +473,7 @@ export default function ServicesPage() {
                 const Icon = step.icon;
                 
                 return (
-                  <div key={index} className=" rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow duration-300">
+                  <div key={index} className="rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
                         <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
@@ -471,7 +502,7 @@ export default function ServicesPage() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 bg-background">
+      {/* <section className="py-20 bg-background">
         <div className="container-custom">
           <div className="mx-auto max-w-2xl text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Apa Kata Klien Kami</h2>
@@ -536,7 +567,7 @@ export default function ServicesPage() {
             </Card>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       <section className="py-20 bg-muted/30">
