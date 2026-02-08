@@ -35,7 +35,7 @@ export default function Footer() {
           {/* Contact Links */}
           <div className="flex items-center justify-center space-x-8">
             <Link 
-              href="https://www.instagram.com/knockpresents/?hl=en" 
+              href="https://www.instagram.com/knock.jkt/?hl=en" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center space-x-2 text-sm text-muted-foreground hover:text-foreground transition-colors"

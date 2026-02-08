@@ -35,7 +35,7 @@ const services = [
       "Pengawasan langsung tim ahli",
     ],
     bestFor: "Pemilik rumah yang ingin memperbarui tampilan dan fungsi ruangan tanpa perubahan struktur besar",
-    image: "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8GVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
+    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2670&q=80",
   },
   {
     id: "design-visualization",
@@ -50,7 +50,7 @@ const services = [
       "Revisi desain unlimited",
     ],
     bestFor: "Klien yang ingin melihat hasil akhir renovasi secara visual sebelum memulai pekerjaan",
-    image: "https://images.unsplash.com/photo-1503174971373-b1f69850bded?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
+    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2670&q=80",
   },
   {
     id: "consultation-survey",
@@ -65,7 +65,7 @@ const services = [
       "Rekomendasi solusi terbaik",
     ],
     bestFor: "Siapa saja yang ingin memulai proyek renovasi dengan perencanaan yang matang",
-    image: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2673&q=80",
+    image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=2673&q=80",
   },
   {
     id: "cost-estimation",
@@ -80,7 +80,7 @@ const services = [
       "Transparansi harga penuh",
     ],
     bestFor: "Pemilik rumah yang ingin mengetahui estimasi biaya renovasi secara detail dan akurat",
-    image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
+    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2670&q=80",
   },
   {
     id: "project-execution",
@@ -95,7 +95,7 @@ const services = [
       "Quality control ketat",
     ],
     bestFor: "Klien yang mengutamakan kualitas pengerjaan dan hasil sesuai rencana",
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2670&q=80",
+    image: "https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?auto=format&fit=crop&w=2670&q=80",
   },
 ];
 

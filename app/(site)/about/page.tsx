@@ -55,57 +55,6 @@ const team = [
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div className="container-custom flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
-          {/* Content on the left */}
-          <div className="w-full lg:w-1/2 z-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground">
-              Tentang <span className="text-foreground">Knock Studio</span>
-            </h1>
-            <p className="text-lg md:text-xl mb-8 text-muted-foreground max-w-lg">
-              Menciptakan ruang impian sejak tahun 2008 dengan desain yang inovatif dan berkelanjutan.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/schedule">
-                <Button size="lg" className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-800)] transition-all duration-300 group">
-                  Konsultasi dengan Kami
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-              <Link href="/portfolio">
-                <Button size="lg" variant="outline" className="text-foreground">
-                  Lihat Karya Kami
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Image on the right */}
-          <div className="w-full lg:w-1/2 relative">
-            <div className="aspect-4/3 lg:aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
-              <Image
-                src="/about/aset1.png"
-                alt="Modern architecture"
-                fill
-                className="object-cover"
-                priority
-                quality={90}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 to-transparent"></div>
-            </div>
-            <div className="absolute -bottom-6 -right-6 w-2/3 h-2/3 bg-[var(--color-secondary)]/10 rounded-2xl -z-10 hidden lg:block"></div>
-          </div>
-        </div>
-
-        {/* Scroll Indicator */}
-        {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-          <div className="w-6 h-10 border-2 border-(--color-primary) rounded-full flex justify-center">
-            <div className="w-1 h-3 bg-(--color-primary) rounded-full mt-2 animate-pulse"></div>
-          </div>
-        </div> */}
-      </section>
-
       {/* About Section */}
       <section className="min-h-screen flex items-center">
         <div className="container-custom py-20">
@@ -146,6 +95,57 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Hero Section */}
+      <section className="relative py-20 flex items-center justify-center overflow-hidden">
+        <div className="container-custom flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
+          {/* Content on the left */}
+          <div className="w-full lg:w-1/2 z-10">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground">
+              Tentang <span className="text-foreground">Knock Studio</span>
+            </h1>
+            <p className="text-lg md:text-xl mb-8 text-muted-foreground max-w-lg">
+              Menciptakan ruang impian sejak tahun 2021 dengan desain yang inovatif dan berkelanjutan.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link href="/schedule">
+                <Button size="lg" className="bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary-800)] transition-all duration-300 group">
+                  Konsultasi dengan Kami
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </Button>
+              </Link>
+              <Link href="/portfolio">
+                <Button size="lg" variant="outline" className="text-foreground">
+                  Lihat Karya Kami
+                </Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Image on the right */}
+          <div className="w-full lg:w-1/2 relative">
+            <div className="aspect-4/3 lg:aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
+              <Image
+                src="/about/aset1.png"
+                alt="Modern architecture"
+                fill
+                className="object-cover"
+                priority
+                quality={90}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/20 to-transparent"></div>
+            </div>
+            <div className="absolute -bottom-6 -right-6 w-2/3 h-2/3 bg-[var(--color-secondary)]/10 rounded-2xl -z-10 hidden lg:block"></div>
+          </div>
+        </div>
+
+        {/* Scroll Indicator */}
+        {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div className="w-6 h-10 border-2 border-(--color-primary) rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-(--color-primary) rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div> */}
       </section>
 
       {/* Values Section */}
