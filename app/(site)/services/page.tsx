@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // app/services/page.tsx
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,7 +36,7 @@ const services = [
       "Pengawasan langsung tim ahli",
     ],
     bestFor: "Pemilik rumah yang ingin memperbarui tampilan dan fungsi ruangan tanpa perubahan struktur besar",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=2670&q=80",
+    image: "/services/Service1.jpg.jpeg",
   },
   {
     id: "design-visualization",
@@ -50,7 +51,7 @@ const services = [
       "Revisi desain unlimited",
     ],
     bestFor: "Klien yang ingin melihat hasil akhir renovasi secara visual sebelum memulai pekerjaan",
-    image: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=2670&q=80",
+    image: "/services/Service2.jpg.jpeg",
   },
   {
     id: "consultation-survey",
@@ -65,7 +66,7 @@ const services = [
       "Rekomendasi solusi terbaik",
     ],
     bestFor: "Siapa saja yang ingin memulai proyek renovasi dengan perencanaan yang matang",
-    image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=2673&q=80",
+    image: "/services/Service3.jpg.jpeg",
   },
   {
     id: "cost-estimation",
@@ -80,7 +81,7 @@ const services = [
       "Transparansi harga penuh",
     ],
     bestFor: "Pemilik rumah yang ingin mengetahui estimasi biaya renovasi secara detail dan akurat",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=2670&q=80",
+    image: "/services/Service4.jpg.jpeg",
   },
   {
     id: "project-execution",
@@ -95,7 +96,7 @@ const services = [
       "Quality control ketat",
     ],
     bestFor: "Klien yang mengutamakan kualitas pengerjaan dan hasil sesuai rencana",
-    image: "https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?auto=format&fit=crop&w=2670&q=80",
+    image: "/services/Service5.jpg.jpeg",
   },
 ];
 
@@ -391,10 +392,10 @@ export default function ServicesPage() {
                       <div key={index} className="flex flex-col items-center relative">
                         <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+                            <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
+                              <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
                             </div>
-                            <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
+                            <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
                           </div>
                           <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                           <p className="text-sm text-muted-foreground">{step.subtitle}</p>
@@ -423,10 +424,10 @@ export default function ServicesPage() {
                       <div key={actualIndex} className="flex flex-col items-center relative">
                         <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+                            <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
+                              <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
                             </div>
-                            <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
+                            <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
                           </div>
                           <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                           <p className="text-sm text-muted-foreground">{step.subtitle}</p>
@@ -455,10 +456,10 @@ export default function ServicesPage() {
                 return (
                   <div key={index} className="rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
+                      <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
+                        <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
                       </div>
-                      <Icon className="h-8 w-8 text-[var(--color-secondary)] flex-shrink-0" />
+                      <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
                     </div>
                     <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                     <p className="text-sm text-muted-foreground">{step.subtitle}</p>
