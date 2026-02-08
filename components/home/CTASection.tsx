@@ -14,8 +14,7 @@ export default function CTASection() {
           </h2>
           
           <p className="mb-8 text-lg text-muted-foreground max-w-2xl mx-auto">
-            Jadwalkan konsultasi gratis dengan ahli desain kami dan mari wujudkan visi Anda. 
-            Kami akan mendiskusikan kebutuhan, preferensi, dan membuat rencana khusus untuk proyek Anda.
+            Jadwalkan konsultasi gratis dengan team kami dan mari wujudkan visi Anda. Kami akan mendiskusikan kebutuhan, preferensi, dan membuat rencana khusus untuk proyek Anda.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -48,14 +48,13 @@ export default function Hero() {
       */}
       <div className="absolute top-0 left-0 w-full h-1/2 z-20 flex flex-col items-start justify-center pt-20 pointer-events-none">
         <div className="container-custom w-full pointer-events-auto">
-          <h1 className="text-foreground mb-0 tracking-loose text-left">
+          <h1 className="text-foreground mt-8 mb-0 tracking-loose text-left">
             Home & Space<br />
            Improvement <br />Studio
           </h1>
 
-          <p className="text-lg md:text-xl max-w-xl mb-10 text-left tracking-tight text-secondary">
-            Izinkan team kami mengetuk <br />
-            pintu rumah Anda! Knock-knock
+          <p className="text-lg md:text-xl max-w-3xl mb-10 text-left tracking-tight text-secondary">
+            Izinkan tim kami mengetuk pintu rumah Anda dan memulai proses transformasi perancangan ruang untuk rumah yang lebih nyaman, fungsional, dan berkarakter sesuai kebutuhan Anda.
           </p>         
         </div>
       </div>
