@@ -48,8 +48,24 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Contact form submissions table
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  address: text('address').notNull(),
+  service: varchar('service', { length: 100 }).notNull(),
+  area: varchar('area', { length: 100 }).notNull(),
+  budget: varchar('budget', { length: 100 }).notNull(),
+  status: varchar('status', { length: 50 }).default('new'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type NewContactSubmission = typeof contactSubmissions.$inferInsert;
