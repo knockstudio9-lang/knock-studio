@@ -336,7 +336,7 @@ export default function ContactSubmissionsPage() {
             <span className="text-sm text-muted-foreground">
               {selectedIds.length} selected
             </span>
-            <Button variant="default" size="sm" onClick={handleBulkDelete}>
+            <Button variant="default" size="sm" onClick={handleBulkDelete} className="text-white">
               <Trash2 className="h-4 w-4 mr-2" />
               Delete Selected
             </Button>
@@ -347,7 +347,7 @@ export default function ContactSubmissionsPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Submissions</CardTitle>
-          <CardDescription>
+          <CardDescription className="text-foreground">
             A list of all contact form submissions received.
           </CardDescription>
         </CardHeader>
@@ -399,6 +399,7 @@ export default function ContactSubmissionsPage() {
                       <Checkbox
                         checked={selectedIds.length === currentItems.length && currentItems.length > 0}
                         onCheckedChange={handleSelectAll}
+                        className="text-white"
                       />
                     </TableHead>
                     <TableHead>Name</TableHead>
@@ -416,6 +417,7 @@ export default function ContactSubmissionsPage() {
                         <Checkbox
                           checked={selectedIds.includes(submission.id)}
                           onCheckedChange={(checked) => handleSelectOne(submission.id, checked as boolean)}
+                          className="text-white"
                         />
                       </TableCell>
                       <TableCell className="font-medium">
