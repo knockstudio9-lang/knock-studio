@@ -7,10 +7,11 @@ import { eq } from "drizzle-orm";
 // PUT - Update comparison feature
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
     const body = await request.json();
 
     const updatedFeature = await db
@@ -25,7 +26,7 @@ export async function PUT(
         order: body.order,
         updatedAt: new Date(),
       })
-      .where(eq(serviceComparisonFeatures.id, id))
+      .where(eq(serviceComparisonFeatures.id, idNum))
       .returning();
 
     if (updatedFeature.length === 0) {
@@ -51,14 +52,15 @@ export async function PUT(
 // DELETE - Delete comparison feature
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
 
     const deletedFeature = await db
       .delete(serviceComparisonFeatures)
-      .where(eq(serviceComparisonFeatures.id, id))
+      .where(eq(serviceComparisonFeatures.id, idNum))
       .returning();
 
     if (deletedFeature.length === 0) {

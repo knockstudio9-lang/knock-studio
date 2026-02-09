@@ -1,4 +1,4 @@
-// app/api/admin/services/[id]/route.ts
+// app/api/(dashboard)/admin/services/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { services } from "@/lib/db/schema";
@@ -7,10 +7,11 @@ import { eq } from "drizzle-orm";
 // PUT - Update service
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
     const body = await request.json();
 
     const updatedService = await db
@@ -28,7 +29,7 @@ export async function PUT(
         isActive: body.isActive,
         updatedAt: new Date(),
       })
-      .where(eq(services.id, id))
+      .where(eq(services.id, idNum))
       .returning();
 
     if (updatedService.length === 0) {
@@ -54,10 +55,11 @@ export async function PUT(
 // PATCH - Partial update (e.g., toggle active status)
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
     const body = await request.json();
 
     const updatedService = await db
@@ -66,7 +68,7 @@ export async function PATCH(
         ...body,
         updatedAt: new Date(),
       })
-      .where(eq(services.id, id))
+      .where(eq(services.id, idNum))
       .returning();
 
     if (updatedService.length === 0) {
@@ -92,14 +94,15 @@ export async function PATCH(
 // DELETE - Delete service
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = parseInt(params.id);
+    const { id } = await params;
+    const idNum = parseInt(id);
 
     const deletedService = await db
       .delete(services)
-      .where(eq(services.id, id))
+      .where(eq(services.id, idNum))
       .returning();
 
     if (deletedService.length === 0) {
