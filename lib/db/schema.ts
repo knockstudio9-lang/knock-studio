@@ -1,5 +1,26 @@
+// lib/db/schema.ts
 import { pgTable, text, integer, timestamp, varchar, jsonb, serial, boolean } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 
+// Users table
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull().unique(),
+  emailVerified: timestamp('email_verified', { mode: 'date' }),
+  image: varchar('image', { length: 500 }),
+  password: varchar('password', { length: 255 }).notNull(),
+  role: varchar('role', { length: 50 }).notNull().default('user'), // 'user' or 'admin'
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Relations (if needed in the future)
+export const usersRelations = relations(users, ({ many }) => ({
+  // Add relations to other tables if needed
+}));
+
+// Your existing projects table
 export const projects = pgTable('projects', {
   id: serial('id').primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
@@ -9,7 +30,6 @@ export const projects = pgTable('projects', {
   area: varchar('area', { length: 50 }).notNull(),
   completion: varchar('completion', { length: 10 }).notNull(),
   description: text('description').notNull(),
-  // Make beforeImage optional since some projects don't have it
   beforeImage: varchar('before_image', { length: 500 }),
   beforeImagePublicId: varchar('before_image_public_id', { length: 500 }),
   afterImage: varchar('after_image', { length: 500 }).notNull(),
@@ -17,12 +37,10 @@ export const projects = pgTable('projects', {
   galleryImages: jsonb('gallery_images').$type<string[]>().default([]),
   galleryImagePublicIds: jsonb('gallery_image_public_ids').$type<string[]>().default([]),
   tags: jsonb('tags').$type<string[]>().notNull(),
-  // Optional fields for additional information
   client: varchar('client', { length: 255 }),
   scope: text('scope'),
   budget: varchar('budget', { length: 100 }),
   team: text('team'),
-  // Status and ordering
   status: varchar('status', { length: 20 }).default('published'),
   featured: boolean('featured').default(false),
   order: integer('order').default(0),
@@ -30,5 +48,60 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Contact form submissions table
+export const contactSubmissions = pgTable('contact_submissions', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 255 }).notNull(),
+  address: text('address').notNull(),
+  service: varchar('service', { length: 100 }).notNull(),
+  area: varchar('area', { length: 100 }).notNull(),
+  budget: varchar('budget', { length: 100 }).notNull(),
+  status: varchar('status', { length: 50 }).default('new'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Services table
+export const services = pgTable('services', {
+  id: serial('id').primaryKey(),
+  serviceId: varchar('service_id', { length: 100 }).notNull().unique(), // e.g., 'home-renovation'
+  icon: varchar('icon', { length: 50 }).notNull(), // Icon name from lucide-react
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  duration: varchar('duration', { length: 100 }).notNull(),
+  features: jsonb('features').$type<string[]>().notNull(),
+  bestFor: text('best_for').notNull(),
+  image: varchar('image', { length: 500 }).notNull(),
+  imagePublicId: varchar('image_public_id', { length: 500 }),
+  order: integer('order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Service comparison features table
+export const serviceComparisonFeatures = pgTable('service_comparison_features', {
+  id: serial('id').primaryKey(),
+  feature: varchar('feature', { length: 255 }).notNull(),
+  renovation: boolean('renovation').default(false),
+  visualization: boolean('visualization').default(false),
+  consultation: boolean('consultation').default(false),
+  estimation: boolean('estimation').default(false),
+  execution: boolean('execution').default(false),
+  order: integer('order').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Export types
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
+export type ContactSubmission = typeof contactSubmissions.$inferSelect;
+export type NewContactSubmission = typeof contactSubmissions.$inferInsert;
+export type Service = typeof services.$inferSelect;
+export type NewService = typeof services.$inferInsert;
+export type ServiceComparisonFeature = typeof serviceComparisonFeatures.$inferSelect;
+export type NewServiceComparisonFeature = typeof serviceComparisonFeatures.$inferInsert;

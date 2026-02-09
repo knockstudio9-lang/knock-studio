@@ -1,4 +1,4 @@
-// app/schedule/page.tsx
+// app/(site)/schedule/page.tsx
 "use client";
 
 import { useState } from "react";
@@ -13,12 +13,40 @@ export default function ContactPage() {
     budget: ""
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, this would send data to a backend
-    console.log("Form submitted:", formData);
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+    
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to submit form');
+      }
+      
+      // Open WhatsApp if URL is provided
+      if (data.whatsappUrl) {
+        window.open(data.whatsappUrl, '_blank');
+      }
+      
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReset = () => {
@@ -30,6 +58,7 @@ export default function ContactPage() {
       budget: ""
     });
     setIsSubmitted(false);
+    setError(null);
   };
 
   return (
@@ -66,6 +95,12 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit}>
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                    {error}
+                  </div>
+                )}
+                
                 {/* Nama */}
                 <div className="mb-6">
                   <label htmlFor="name" className="block text-sm font-medium text-card-foreground mb-2">
@@ -174,9 +209,10 @@ export default function ContactPage() {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  className="w-full px-6 py-3 bg-ring text-white rounded-lg hover:bg-ring/90 transition-colors font-medium text-lg"
+                  disabled={isSubmitting}
+                  className="w-full px-6 py-3 bg-ring text-white rounded-lg hover:bg-ring/90 transition-colors font-medium text-lg disabled:opacity-50"
                 >
-                  Kirim Pesan
+                  {isSubmitting ? 'Submitting...' : 'Kirim Pesan'}
                 </button>
               </form>
             )}

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// app/services/page.tsx
+// app/(site)/services/page.tsx
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -392,10 +392,10 @@ export default function ServicesPage() {
                       <div key={index} className="flex flex-col items-center relative">
                         <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
-                              <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
+                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
+                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
                             </div>
-                            <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
+                            <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
                           </div>
                           <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                           <p className="text-sm text-muted-foreground">{step.subtitle}</p>
@@ -417,23 +417,20 @@ export default function ServicesPage() {
                   {workSteps.slice(Math.ceil(workSteps.length / 2)).map((step, index) => {
                     const Icon = step.icon;
                     const actualIndex = index + Math.ceil(workSteps.length / 2);
-                    const isFirstInColumn = index === 0;
                     const isLastInColumn = actualIndex === workSteps.length - 1;
                     
                     return (
                       <div key={actualIndex} className="flex flex-col items-center relative">
                         <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
                           <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
-                              <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
+                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
+                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
                             </div>
-                            <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
+                            <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
                           </div>
                           <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                           <p className="text-sm text-muted-foreground">{step.subtitle}</p>
                         </div>
-                        
-                       
                         
                         {/* Arrow connector for vertical flow within column */}
                         {!isLastInColumn && (
@@ -456,10 +453,10 @@ export default function ServicesPage() {
                 return (
                   <div key={index} className="rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-full bg-(--color-secondary)/10 flex items-center justify-center shrink-0">
-                        <span className="text-lg font-bold text-(--color-secondary)">{step.number}</span>
+                      <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
+                        <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
                       </div>
-                      <Icon className="h-8 w-8 text-(--color-secondary) shrink-0" />
+                      <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
                     </div>
                     <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
                     <p className="text-sm text-muted-foreground">{step.subtitle}</p>
@@ -501,74 +498,6 @@ export default function ServicesPage() {
           </div>
         </div>
       </section>
-
-      {/* Testimonials Section */}
-      {/* <section className="py-20 bg-background">
-        <div className="container-custom">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Apa Kata Klien Kami</h2>
-            <p className="text-xl text-muted-foreground">
-              Kepuasan klien adalah prioritas utama kami
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            <Card className="p-6 bg-background border-2 hover:border-[var(--color-secondary)] transition-all">
-              <div className="flex mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
-                ))}
-              </div>
-              <p className="text-muted-foreground mb-4">
-                &quot;Tim Knock Studio berhasil mengubah rumah kami menjadi yang selalu kami impikan. Prosesnya mulus dan hasilnya melampaui ekspektasi kami.&quot;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-secondary)]/20"></div>
-                <div>
-                  <h4 className="font-semibold text-foreground">Budi Santoso</h4>
-                  <p className="text-sm text-muted-foreground">Renovasi Rumah</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-background border-2 hover:border-[var(--color-secondary)] transition-all">
-              <div className="flex mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
-                ))}
-              </div>
-              <p className="text-muted-foreground mb-4">
-                &quot;Estimasi biaya yang jelas dan transparan sangat membantu kami dalam perencanaan. Tidak ada biaya tersembunyi, semuanya sesuai RAB.&quot;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-secondary)]/20"></div>
-                <div>
-                  <h4 className="font-semibold text-foreground">Siti Nurhaliza</h4>
-                  <p className="text-sm text-muted-foreground">Renovasi Dapur</p>
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-background border-2 hover:border-[var(--color-secondary)] transition-all">
-              <div className="flex mb-4">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-5 w-5 fill-[var(--color-secondary)] text-[var(--color-secondary)]" />
-                ))}
-              </div>
-              <p className="text-muted-foreground mb-4">
-                &quot;Visualisasi 3D sangat membantu kami melihat hasil akhir sebelum renovasi dimulai. Tim sangat responsif terhadap perubahan yang kami inginkan.&quot;
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-secondary)]/20"></div>
-                <div>
-                  <h4 className="font-semibold text-foreground">Andi Pratama</h4>
-                  <p className="text-sm text-muted-foreground">Renovasi Kamar Tidur</p>
-                </div>
-              </div>
-            </Card>
-          </div>
-        </div>
-      </section> */}
 
       {/* CTA Section */}
       <section className="py-20 bg-muted/30">
