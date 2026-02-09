@@ -62,6 +62,38 @@ export const contactSubmissions = pgTable('contact_submissions', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
+// Services table
+export const services = pgTable('services', {
+  id: serial('id').primaryKey(),
+  serviceId: varchar('service_id', { length: 100 }).notNull().unique(), // e.g., 'home-renovation'
+  icon: varchar('icon', { length: 50 }).notNull(), // Icon name from lucide-react
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  duration: varchar('duration', { length: 100 }).notNull(),
+  features: jsonb('features').$type<string[]>().notNull(),
+  bestFor: text('best_for').notNull(),
+  image: varchar('image', { length: 500 }).notNull(),
+  imagePublicId: varchar('image_public_id', { length: 500 }),
+  order: integer('order').default(0),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+// Service comparison features table
+export const serviceComparisonFeatures = pgTable('service_comparison_features', {
+  id: serial('id').primaryKey(),
+  feature: varchar('feature', { length: 255 }).notNull(),
+  renovation: boolean('renovation').default(false),
+  visualization: boolean('visualization').default(false),
+  consultation: boolean('consultation').default(false),
+  estimation: boolean('estimation').default(false),
+  execution: boolean('execution').default(false),
+  order: integer('order').default(0),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
 // Export types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -69,3 +101,7 @@ export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;
 export type ContactSubmission = typeof contactSubmissions.$inferSelect;
 export type NewContactSubmission = typeof contactSubmissions.$inferInsert;
+export type Service = typeof services.$inferSelect;
+export type NewService = typeof services.$inferInsert;
+export type ServiceComparisonFeature = typeof serviceComparisonFeatures.$inferSelect;
+export type NewServiceComparisonFeature = typeof serviceComparisonFeatures.$inferInsert;

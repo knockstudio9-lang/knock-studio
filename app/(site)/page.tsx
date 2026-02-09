@@ -1,4 +1,4 @@
-// app/page.tsx (update this file)
+// app/(site)/page.tsx (update this file)
 "use client";
 
 import { useState, useEffect } from "react";

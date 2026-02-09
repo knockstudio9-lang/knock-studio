@@ -6,7 +6,18 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "@/components/providers/SessionProvider";
 import { useTheme } from "@/components/providers/ThemeProvider";
-import { Home, LogOut, LayoutDashboard, Image as ImageIcon, FolderOpen, Settings, Heart, User, Contact } from "lucide-react";
+import { 
+  Home, 
+  LogOut, 
+  LayoutDashboard, 
+  Image as ImageIcon, 
+  FolderOpen, 
+  Settings, 
+  Heart, 
+  User, 
+  Contact,
+  Wrench
+} from "lucide-react";
 
 interface SidebarProps {
   userRole: "admin" | "user";
@@ -32,6 +43,11 @@ export function Sidebar({ userRole }: SidebarProps) {
       name: "Portfolio",
       href: "/dashboard/admin/portfolio",
       icon: ImageIcon,
+    },
+    {
+      name: "Services",
+      href: "/dashboard/admin/services",
+      icon: Wrench,
     },
     {
       name: "Contact-form",

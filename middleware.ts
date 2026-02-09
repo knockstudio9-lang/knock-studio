@@ -1,4 +1,3 @@
-// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
@@ -10,14 +9,8 @@ const JWT_SECRET = new TextEncoder().encode(
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Public routes that don't require authentication
-  const publicRoutes = ["/", "/login", "/projects"];
-  const isPublicRoute = publicRoutes.some((route) => 
-    pathname === route || pathname.startsWith("/api/auth")
-  );
-
-  // Allow access to public routes and static files
-  if (isPublicRoute || pathname.startsWith("/_next") || pathname.startsWith("/static")) {
+  // Only apply authentication to dashboard routes
+  if (!pathname.startsWith("/dashboard")) {
     return NextResponse.next();
   }
 
