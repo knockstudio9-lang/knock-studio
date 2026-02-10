@@ -54,7 +54,7 @@ const sampleValues = [
 const sampleTeamMembers = [
   // Founder
   {
-    name: "Fachry ZD",
+    name: "Fachry Zella Devandra",
     position: "Founder",
     image: "/about/team/profile.jpeg",
     imagePublicId: "",

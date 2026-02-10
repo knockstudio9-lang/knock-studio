@@ -68,6 +68,7 @@ export default function AboutPage() {
       setAboutValues(valuesData.data || []);
       setTeamMembers(teamData.data || []);
     } catch (error) {
+      console.error("Fetch error:", error);
       toast.error("Failed to fetch data");
     } finally {
       setIsLoading(false);
@@ -82,11 +83,16 @@ export default function AboutPage() {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete value");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete value");
+      }
 
       toast.success("Value deleted successfully");
       fetchData();
     } catch (error) {
+      console.error("Delete error:", error);
       toast.error("Failed to delete value");
     }
   };
@@ -99,11 +105,16 @@ export default function AboutPage() {
         body: JSON.stringify({ isActive: !value.isActive }),
       });
 
-      if (!response.ok) throw new Error("Failed to update value");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to update value");
+      }
 
       toast.success(`Value ${!value.isActive ? "activated" : "deactivated"}`);
       fetchData();
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update value");
     }
   };
@@ -116,11 +127,16 @@ export default function AboutPage() {
         method: "DELETE",
       });
 
-      if (!response.ok) throw new Error("Failed to delete team member");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete team member");
+      }
 
       toast.success("Team member deleted successfully");
       fetchData();
     } catch (error) {
+      console.error("Delete error:", error);
       toast.error("Failed to delete team member");
     }
   };
@@ -133,11 +149,16 @@ export default function AboutPage() {
         body: JSON.stringify({ isActive: !member.isActive }),
       });
 
-      if (!response.ok) throw new Error("Failed to update team member");
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to update team member");
+      }
 
       toast.success(`Team member ${!member.isActive ? "activated" : "deactivated"}`);
       fetchData();
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update team member");
     }
   };
@@ -215,8 +236,7 @@ export default function AboutPage() {
                       <TableRow key={value.id}>
                         <TableCell>
                           <div className="flex items-center justify-center w-10 h-10 rounded-md bg-primary/10">
-                            {/* You can use a dynamic icon component here based on the icon name */}
-                            <span className="text-primary">{value.icon}</span>
+                            <span className="text-secondary">{value.icon}</span>
                           </div>
                         </TableCell>
                         <TableCell className="font-medium">{value.title}</TableCell>
@@ -307,16 +327,20 @@ export default function AboutPage() {
                   ) : (
                     teamMembers.map((member) => (
                       <TableRow key={member.id}>
+                        {/* --- THIS IS THE FIXED PART --- */}
                         <TableCell>
-                          <div className="relative w-16 h-16 rounded-md overflow-hidden">
-                            <Image
-                              src={member.image}
-                              alt={member.name}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
+                          {member.image && (
+                            <div className="relative w-16 h-16 rounded-md overflow-hidden">
+                              <Image
+                                src={member.image}
+                                alt={member.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
+                          )}
                         </TableCell>
+                        {/* --- END OF FIXED PART --- */}
                         <TableCell className="font-medium">
                           {member.name}
                           {member.isFounder && (

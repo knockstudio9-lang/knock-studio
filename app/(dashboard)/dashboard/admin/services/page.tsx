@@ -15,7 +15,7 @@ import {
 import { Plus, Edit, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Image from "next/image";
-import Link from "next/link";
+import { ServiceDialog } from "@/components/dashboard/service/ServiceDialog";
 
 interface Service {
   id: number;
@@ -37,6 +37,8 @@ interface Service {
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState<Service | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -89,6 +91,22 @@ export default function ServicesPage() {
     }
   };
 
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setDialogOpen(true);
+  };
+
+  const handleAddService = () => {
+    setEditingService(null);
+    setDialogOpen(true);
+  };
+
+  const handleDialogSuccess = () => {
+    fetchServices();
+    setDialogOpen(false);
+    setEditingService(null);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -98,113 +116,123 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Services Management</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage your service offerings
-          </p>
-        </div>
-        <Link href="/dashboard/admin/services/new">
-          <Button className="text-white">
+    <>
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Services Management</h1>
+            <p className="text-muted-foreground mt-1">
+              Manage your service offerings
+            </p>
+          </div>
+          <Button onClick={handleAddService} className="text-white">
             <Plus className="h-4 w-4 mr-2" />
             Add Service
           </Button>
-        </Link>
-      </div>
+        </div>
 
-      {/* Services Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Services</CardTitle>
-              <CardDescription>Manage your service offerings</CardDescription>
+        {/* Services Section */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Services</CardTitle>
+                <CardDescription>Manage your service offerings</CardDescription>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Image</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Order</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {services.length === 0 ? (
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground">
-                    No services found. Create your first service.
-                  </TableCell>
+                  <TableHead>Image</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ) : (
-                services.map((service) => (
-                  <TableRow key={service.id}>
-                    <TableCell>
-                      <div className="relative w-16 h-16 rounded-md overflow-hidden">
-                        <Image
-                          src={service.image}
-                          alt={service.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    </TableCell>
-                    <TableCell className="font-medium">{service.title}</TableCell>
-                    <TableCell>{service.duration}</TableCell>
-                    <TableCell>{service.order}</TableCell>
-                    <TableCell>
-                      <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          service.isActive
-                            ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                            : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
-                        }`}
-                      >
-                        {service.isActive ? "Active" : "Inactive"}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleToggleActive(service)}
-                        >
-                          {service.isActive ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Link href={`/dashboard/admin/services/${service.id}/edit`}>
-                          <Button variant="ghost" size="sm">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteService(service.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+              </TableHeader>
+              <TableBody>
+                {services.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground">
+                      No services found. Create your first service.
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+                ) : (
+                  services.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell>
+                        <div className="relative w-16 h-16 rounded-md overflow-hidden">
+                          <Image
+                            src={service.image}
+                            alt={service.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-medium">{service.title}</TableCell>
+                      <TableCell>{service.duration}</TableCell>
+                      <TableCell>{service.order}</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            service.isActive
+                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                              : "bg-gray-100 text-gray-800 dark:bg-gray-800/50 dark:text-gray-400"
+                          }`}
+                        >
+                          {service.isActive ? "Active" : "Inactive"}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggleActive(service)}
+                          >
+                            {service.isActive ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditService(service)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteService(service.id)}
+                          >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Service Dialog */}
+      <ServiceDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        service={editingService}
+        onSuccess={handleDialogSuccess}
+      />
+    </>
   );
 }

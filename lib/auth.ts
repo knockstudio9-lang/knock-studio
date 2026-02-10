@@ -74,3 +74,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/auth/error",
   },
 });
+
+// Export a helper function for API routes
+export async function getSession() {
+  return await auth();
+}

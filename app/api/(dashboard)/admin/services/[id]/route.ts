@@ -4,6 +4,41 @@ import { db } from "@/lib/db";
 import { services } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+// GET - Fetch single service
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const idNum = parseInt(id);
+
+    const service = await db
+      .select()
+      .from(services)
+      .where(eq(services.id, idNum))
+      .limit(1);
+
+    if (service.length === 0) {
+      return NextResponse.json(
+        { error: "Service not found", success: false },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: service[0],
+    });
+  } catch (error) {
+    console.error("Error fetching service:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch service", success: false },
+      { status: 500 }
+    );
+  }
+}
+
 // PUT - Update service
 export async function PUT(
   request: NextRequest,
