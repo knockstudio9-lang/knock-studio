@@ -8,10 +8,10 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.json();
     
-    // Validate required fields
-    const { name, address, service, area, budget } = formData;
+    // Validate required fields - only name, address, and service are required now
+    const { name, address, service, area, budget, details } = formData;
     
-    if (!name || !address || !service || !area || !budget) {
+    if (!name || !address || !service) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -23,12 +23,20 @@ export async function POST(request: NextRequest) {
       name,
       address,
       service,
-      area,
-      budget,
+      area: area || null,
+      budget: budget || null,
+      details: details || null,
     }).returning();
     
     // Format WhatsApp message
-    const message = formatWhatsAppMessage(formData);
+    const message = formatWhatsAppMessage({
+      name,
+      address,
+      service,
+      area: area || '',
+      budget: budget || '',
+      details: details || ''
+    });
     
     // Get WhatsApp number from environment variables
     const whatsappNumber = process.env.WHATSAPP_NUMBER || '628123456789'; // Default to a test number

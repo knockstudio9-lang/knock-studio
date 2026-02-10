@@ -5,17 +5,26 @@ export function formatWhatsAppMessage(formData: {
   service: string;
   area: string;
   budget: string;
+  details: string;
 }): string {
+  const serviceLabel = formData.service === 'renovation' ? 'Renovasi' : 'Bangun Baru';
+  const areaText = formData.area ? `*Luasan Area:* ${formData.area}` : '*Luasan Area:* Belum diisi';
+  const budgetText = formData.budget ? `*Estimasi Anggaran:* Rp ${formData.budget}` : '*Estimasi Anggaran:* Belum diisi';
+  const detailsText = formData.details ? `*Detail Tambahan:* ${formData.details}` : '*Detail Tambahan:* Tidak ada';
+
   const message = `
-*New Contact Form Submission*
+📋 *Formulir Kontak Baru*
 
-*Name:* ${formData.name}
-*Address:* ${formData.address}
-*Service:* ${formData.service}
-*Area:* ${formData.area}
-*Budget:* ${formData.budget}
+👤 *Nama:* ${formData.name}
+📍 *Alamat:* ${formData.address}
+🔨 *Jenis Layanan:* ${serviceLabel}
+📐 ${areaText}
+💰 ${budgetText}
+📝 ${detailsText}
 
-Please follow up with this lead as soon as possible.
+🔔 *Mohon segera follow up lead ini.*
+
+*Waktu Pengiriman:* ${new Date().toLocaleString('id-ID')}
   `.trim();
 
   return encodeURIComponent(message);

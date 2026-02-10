@@ -41,10 +41,31 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  MoreHorizontal
+  Eye
 } from "lucide-react";
 import { ContactSubmission } from "@/lib/db/schema";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+
+// Format number to Indonesian Rupiah
+const formatRupiah = (value: string | null | undefined): string => {
+  if (!value) return "Tidak disebutkan";
+  
+  // Remove non-numeric characters
+  const numericValue = value.replace(/[^\d]/g, "");
+  
+  if (!numericValue) return value;
+  
+  // Format with thousand separators
+  const formatted = new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Number(numericValue));
+  
+  return formatted;
+};
 
 // Pagination component
 function Pagination({ 
@@ -143,6 +164,7 @@ export default function ContactSubmissionsPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [serviceFilter, setServiceFilter] = useState("all");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -150,6 +172,8 @@ export default function ContactSubmissionsPage() {
   const [newStatus, setNewStatus] = useState("");
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [viewSubmission, setViewSubmission] = useState<ContactSubmission | null>(null);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
@@ -162,7 +186,7 @@ export default function ContactSubmissionsPage() {
   }, []);
 
   useEffect(() => {
-    // Filter submissions based on search term and status
+    // Filter submissions based on search term, status, and service
     let filtered = submissions;
     
     if (searchTerm) {
@@ -170,7 +194,8 @@ export default function ContactSubmissionsPage() {
         (submission) =>
           submission.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           submission.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          submission.service?.toLowerCase().includes(searchTerm.toLowerCase())
+          submission.service?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          submission.details?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -178,9 +203,13 @@ export default function ContactSubmissionsPage() {
       filtered = filtered.filter((submission) => submission.status === statusFilter);
     }
     
+    if (serviceFilter !== "all") {
+      filtered = filtered.filter((submission) => submission.service === serviceFilter);
+    }
+    
     setFilteredSubmissions(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [submissions, searchTerm, statusFilter]);
+  }, [submissions, searchTerm, statusFilter, serviceFilter]);
 
   const fetchSubmissions = async () => {
     try {
@@ -297,10 +326,41 @@ export default function ContactSubmissionsPage() {
     }
   };
 
+  const getServiceBadge = (service: string | null) => {
+    switch (service) {
+      case "renovation":
+        return <Badge variant="secondary">Renovasi</Badge>;
+      case "new-build":
+        return <Badge variant="secondary">Bangun Baru</Badge>;
+      default:
+        return <Badge variant="outline">{service || "Unknown"}</Badge>;
+    }
+  };
+
+  const getServiceLabel = (service: string | null) => {
+    switch (service) {
+      case "renovation":
+        return "Renovasi";
+      case "new-build":
+        return "Bangun Baru";
+      default:
+        return service || "Tidak disebutkan";
+    }
+  };
+
   const formatDate = (date: Date | null | undefined) => {
     if (!date) return "N/A";
     try {
-      return format(new Date(date), "MMM d, yyyy");
+      return format(new Date(date), "dd MMMM yyyy");
+    } catch (error) {
+      return "Invalid Date";
+    }
+  };
+
+  const formatDateTime = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
+    try {
+      return format(new Date(date), "dd MMMM yyyy, HH:mm");
     } catch (error) {
       return "Invalid Date";
     }
@@ -320,6 +380,11 @@ export default function ContactSubmissionsPage() {
     } else {
       setSelectedIds(prev => prev.filter(selectedId => selectedId !== id));
     }
+  };
+
+  const handleViewSubmission = (submission: ContactSubmission) => {
+    setViewSubmission(submission);
+    setIsViewDialogOpen(true);
   };
 
   return (
@@ -352,11 +417,11 @@ export default function ContactSubmissionsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex flex-col lg:flex-row gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search submissions..."
+                placeholder="Search by name, address, service, or details..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -365,14 +430,24 @@ export default function ContactSubmissionsPage() {
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filter by status" />
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="new">New</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                <SelectTrigger className="w-[150px]">
+                  <SelectValue placeholder="Service" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Services</SelectItem>
+                  <SelectItem value="renovation">Renovasi</SelectItem>
+                  <SelectItem value="new-build">Bangun Baru</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -385,129 +460,153 @@ export default function ContactSubmissionsPage() {
           ) : currentItems.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-muted-foreground">
-                {searchTerm || statusFilter !== "all"
+                {searchTerm || statusFilter !== "all" || serviceFilter !== "all"
                   ? "No submissions match your search criteria."
                   : "No submissions yet."}
               </p>
             </div>
           ) : (
             <>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[50px]">
-                      <Checkbox
-                        checked={selectedIds.length === currentItems.length && currentItems.length > 0}
-                        onCheckedChange={handleSelectAll}
-                        className="text-white"
-                      />
-                    </TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Budget</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentItems.map((submission) => (
-                    <TableRow key={submission.id}>
-                      <TableCell>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[50px]">
                         <Checkbox
-                          checked={selectedIds.includes(submission.id)}
-                          onCheckedChange={(checked) => handleSelectOne(submission.id, checked as boolean)}
+                          checked={selectedIds.length === currentItems.length && currentItems.length > 0}
+                          onCheckedChange={handleSelectAll}
                           className="text-white"
                         />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        {submission.name || "N/A"}
-                      </TableCell>
-                      <TableCell>{submission.service || "N/A"}</TableCell>
-                      <TableCell>{submission.budget || "N/A"}</TableCell>
-                      <TableCell>{getStatusBadge(submission.status)}</TableCell>
-                      <TableCell>{formatDate(submission.createdAt)}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Dialog open={isDialogOpen && editStatusId === submission.id} onOpenChange={(open) => {
-                            setIsDialogOpen(open);
-                            if (!open) {
-                              setEditStatusId(null);
-                              setNewStatus("");
-                            }
-                          }}>
-                            <DialogTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => {
-                                  setEditStatusId(submission.id);
-                                  setNewStatus(submission.status || "");
-                                  setIsDialogOpen(true);
-                                }}
-                              >
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Status
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Edit Status</DialogTitle>
-                                <DialogDescription>
-                                  Update the status for this submission.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4 py-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="status">Status</Label>
-                                  <Select
-                                    value={newStatus}
-                                    onValueChange={setNewStatus}
-                                  >
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a status" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="new">New</SelectItem>
-                                      <SelectItem value="in-progress">In Progress</SelectItem>
-                                      <SelectItem value="completed">Completed</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              </div>
-                              <DialogFooter>
-                                <Button
-                                  variant="outline"
+                      </TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Service</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Budget</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {currentItems.map((submission) => (
+                      <TableRow key={submission.id}>
+                        <TableCell>
+                          <Checkbox
+                            checked={selectedIds.includes(submission.id)}
+                            onCheckedChange={(checked) => handleSelectOne(submission.id, checked as boolean)}
+                            className="text-white"
+                          />
+                        </TableCell>
+                        <TableCell className="font-medium">
+                          <div>
+                            <p>{submission.name || "N/A"}</p>
+                            {/* {submission.details && (
+                              <p className="text-sm text-muted-foreground truncate max-w-[200px]">
+                                {submission.details}
+                              </p>
+                            )} */}
+                          </div>
+                        </TableCell>
+                        <TableCell>{getServiceBadge(submission.service)}</TableCell>
+                        <TableCell>
+                          <span className="truncate max-w-[150px] block">
+                            {submission.address || "N/A"}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {formatRupiah(submission.budget)}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(submission.status)}</TableCell>
+                        <TableCell>{formatDate(submission.createdAt)}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleViewSubmission(submission)}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Dialog open={isDialogOpen && editStatusId === submission.id} onOpenChange={(open) => {
+                              setIsDialogOpen(open);
+                              if (!open) {
+                                setEditStatusId(null);
+                                setNewStatus("");
+                              }
+                            }}>
+                              <DialogTrigger asChild>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
                                   onClick={() => {
-                                    setIsDialogOpen(false);
-                                    setEditStatusId(null);
-                                    setNewStatus("");
+                                    setEditStatusId(submission.id);
+                                    setNewStatus(submission.status || "");
+                                    setIsDialogOpen(true);
                                   }}
                                 >
-                                  Cancel
+                                  <Edit className="h-4 w-4 mr-2" />
+                                  Status
                                 </Button>
-                                <Button
-                                  onClick={handleUpdateStatus}
-                                  disabled={isUpdatingStatus || !newStatus}
-                                >
-                                  {isUpdatingStatus ? "Updating..." : "Update Status"}
-                                </Button>
-                              </DialogFooter>
-                            </DialogContent>
-                          </Dialog>
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => handleDelete(submission.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                              </DialogTrigger>
+                              <DialogContent>
+                                <DialogHeader>
+                                  <DialogTitle>Edit Status</DialogTitle>
+                                  <DialogDescription>
+                                    Update the status for this submission.
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="space-y-4 py-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="status">Status</Label>
+                                    <Select
+                                      value={newStatus}
+                                      onValueChange={setNewStatus}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select a status" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="new">New</SelectItem>
+                                        <SelectItem value="in-progress">In Progress</SelectItem>
+                                        <SelectItem value="completed">Completed</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                                <DialogFooter>
+                                  <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                      setIsDialogOpen(false);
+                                      setEditStatusId(null);
+                                      setNewStatus("");
+                                    }}
+                                  >
+                                    Cancel
+                                  </Button>
+                                  <Button
+                                    onClick={handleUpdateStatus}
+                                    disabled={isUpdatingStatus || !newStatus}
+                                  >
+                                    {isUpdatingStatus ? "Updating..." : "Update Status"}
+                                  </Button>
+                                </DialogFooter>
+                              </DialogContent>
+                            </Dialog>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              onClick={() => handleDelete(submission.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
               
               {totalPages > 1 && (
                 <div className="mt-4">
@@ -522,6 +621,130 @@ export default function ContactSubmissionsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* View Submission Dialog - Improved Form Layout */}
+      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Detail Pengajuan</DialogTitle>
+            <DialogDescription>
+              Informasi lengkap dari pengajuan kontak klien
+            </DialogDescription>
+          </DialogHeader>
+          {viewSubmission && (
+            <div className="space-y-6 py-4">
+              {/* Client Information Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Informasi Klien
+                </h3>
+                <Separator />
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Nama
+                    </Label>
+                    <p className="col-span-2 text-sm">
+                      {viewSubmission.name || "Tidak disebutkan"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Project Information Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Informasi Proyek
+                </h3>
+                <Separator />
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Jenis Layanan
+                    </Label>
+                    <p className="col-span-2 text-sm">
+                      {getServiceLabel(viewSubmission.service)}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Lokasi Proyek
+                    </Label>
+                    <p className="col-span-2 text-sm">
+                      {viewSubmission.address || "Tidak disebutkan"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Luas Area
+                    </Label>
+                    <p className="col-span-2 text-sm">
+                      {viewSubmission.area ? `${viewSubmission.area} m²` : "Tidak disebutkan"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Budget
+                    </Label>
+                    <p className="col-span-2 text-sm font-medium">
+                      {formatRupiah(viewSubmission.budget)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Additional Details Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Detail Tambahan
+                </h3>
+                <Separator />
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Detail
+                    </Label>
+                    <p className="col-span-2 text-sm whitespace-pre-wrap">
+                      {viewSubmission.details || "Tidak ada keterangan tambahan"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status & Timeline Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Status & Timeline
+                </h3>
+                <Separator />
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Status
+                    </Label>
+                    <div className="col-span-2">
+                      {getStatusBadge(viewSubmission.status)}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Label className="text-sm font-medium text-muted-foreground">
+                      Tanggal Pengajuan
+                    </Label>
+                    <p className="col-span-2 text-sm">
+                      {formatDateTime(viewSubmission.createdAt)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
+              Tutup
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

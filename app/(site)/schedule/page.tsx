@@ -2,19 +2,52 @@
 "use client";
 
 import { useState } from "react";
-import { User, MapPin, Home, Check } from "lucide-react";
+import { User, MapPin, Home, Check, FileText } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+// Format number to Indonesian Rupiah
+const formatRupiah = (value: string): string => {
+  // Remove all non-numeric characters
+  const numbers = value.replace(/\D/g, "");
+  
+  if (!numbers) return "";
+  
+  // Format with thousand separators
+  return new Intl.NumberFormat("id-ID").format(parseInt(numbers));
+};
+
+// Parse formatted rupiah back to plain number string
+const parseRupiah = (value: string): string => {
+  return value.replace(/\D/g, "");
+};
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     address: "",
-    service: "Design & Build",
+    service: "renovation",
     area: "",
-    budget: ""
+    budget: "",
+    details: ""
   });
+  const [displayBudget, setDisplayBudget] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const numericValue = parseRupiah(rawValue);
+    
+    setFormData({ ...formData, budget: numericValue });
+    setDisplayBudget(formatRupiah(rawValue));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,17 +66,16 @@ export default function ContactPage() {
       const data = await response.json();
       
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit form');
+        throw new Error(data.error || 'Gagal mengirim formulir');
       }
       
-      // Open WhatsApp if URL is provided
       if (data.whatsappUrl) {
         window.open(data.whatsappUrl, '_blank');
       }
       
       setIsSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      setError(err instanceof Error ? err.message : 'Terjadi kesalahan yang tidak diketahui');
     } finally {
       setIsSubmitting(false);
     }
@@ -53,10 +85,12 @@ export default function ContactPage() {
     setFormData({
       name: "",
       address: "",
-      service: "Design & Build",
+      service: "renovation",
       area: "",
-      budget: ""
+      budget: "",
+      details: ""
     });
+    setDisplayBudget("");
     setIsSubmitted(false);
     setError(null);
   };
@@ -65,155 +99,175 @@ export default function ContactPage() {
     <div className="min-h-screen bg-background transition-colors duration-300 pt-16">
       <main className="container-custom py-12">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-              Contact Us
+          <div className="mb-10">
+            <h1 className="text-3xl md:text-4xl font-bold text-secondary mb-3 text-center">
+              Contact us
             </h1>
-            <p className="text-lg text-muted-foreground">
-              Fill out the form below and we&apos;ll get back to you as soon as possible to discuss your project.
+            <p className="text-base text-muted-foreground leading-relaxed">
+              Lengkapi formulir di bawah ini dan kami akan menghubungi Anda secepatnya untuk mendiskusikan proyek Anda.
             </p>
           </div>
 
-          <div className="bg-card rounded-lg border border-border p-6 md:p-8">
+          <div className="bg-card border border-border p-8 md:p-10">
             {isSubmitted ? (
-              <div className="text-center py-12">
-                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-                  <Check className="h-8 w-8 text-green-600" />
+              <div className="text-center py-16">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-green-50 dark:bg-green-900/20 mb-6">
+                  <Check className="h-8 w-8 text-green-600 dark:text-green-500" />
                 </div>
-                <h2 className="text-2xl font-bold text-card-foreground mb-2">
-                  Thank You!
+                <h2 className="text-2xl font-bold text-card-foreground mb-3">
+                  Terima Kasih!
                 </h2>
-                <p className="text-muted-foreground mb-8">
-                  We&apos;ve received your inquiry and will get back to you shortly.
+                <p className="text-muted-foreground mb-10 max-w-md mx-auto">
+                  Kami telah menerima pertanyaan Anda dan akan segera menghubungi Anda kembali.
                 </p>
                 <button
                   onClick={handleReset}
-                  className="px-6 py-3 bg-ring text-white rounded-lg hover:bg-ring/90 transition-colors"
+                  className="px-8 py-3 bg-ring text-white hover:bg-ring/90 transition-colors font-medium"
                 >
-                  Submit Another Inquiry
+                  Kirim Pertanyaan Lain
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="space-y-7">
                 {error && (
-                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                  <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
                     {error}
                   </div>
                 )}
                 
                 {/* Nama */}
-                <div className="mb-6">
-                  <label htmlFor="name" className="block text-sm font-medium text-card-foreground mb-2">
-                    Nama <span className="text-red-500">*</span>
+                <div className="space-y-2">
+                  <label htmlFor="name" className="block text-sm font-medium text-card-foreground">
+                    Nama Lengkap <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <User className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       id="name"
                       type="text"
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({...formData, name: e.target.value})}
-                      className="w-full pl-11 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                      className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all text-sm"
                       placeholder="Masukkan nama lengkap Anda"
                     />
                   </div>
                 </div>
 
                 {/* Alamat Lengkap */}
-                <div className="mb-6">
-                  <label htmlFor="address" className="block text-sm font-medium text-card-foreground mb-2">
-                    Alamat Lengkap <span className="text-red-500">*</span>
+                <div className="space-y-2">
+                  <label htmlFor="address" className="block text-sm font-medium text-card-foreground">
+                    Alamat Lengkap Properti <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
-                    <MapPin className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
                     <textarea
                       id="address"
                       required
                       rows={3}
                       value={formData.address}
                       onChange={(e) => setFormData({...formData, address: e.target.value})}
-                      className="w-full pl-11 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all resize-none"
-                      placeholder="Masukkan alamat lengkap properti"
+                      className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all resize-none text-sm"
+                      placeholder="Masukkan alamat lengkap lokasi proyek"
                     />
                   </div>
                 </div>
 
-                {/* Service */}
-                <div className="mb-6">
-                  <label htmlFor="service" className="block text-sm font-medium text-card-foreground mb-2">
-                    Service <span className="text-red-500">*</span>
+                {/* Service Type */}
+                <div className="space-y-2">
+                  <label htmlFor="service" className="block text-sm font-medium text-card-foreground">
+                    Jenis Layanan <span className="text-red-500">*</span>
                   </label>
-                  <select
-                    id="service"
-                    required
+                  <Select
                     value={formData.service}
-                    onChange={(e) => setFormData({...formData, service: e.target.value})}
-                    className="w-full px-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                    onValueChange={(value) => setFormData({...formData, service: value})}
                   >
-                    <option value="Design & Build">Design & Build</option>
-                    <option value="Design Only">Design Only</option>
-                    <option value="Build Only">Build Only</option>
-                    <option value="Interior">Interior</option>
-                    <option value="Renovation">Renovation</option>
-                    <option value="Consultation">Consultation</option>
-                  </select>
+                    <SelectTrigger className="w-full border-border bg-background focus:ring-1 focus:ring-ring text-sm h-auto py-2.5">
+                      <SelectValue placeholder="Pilih jenis layanan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="renovation" className="text-sm">
+                        Renovasi
+                      </SelectItem>
+                      <SelectItem value="new-construction" className="text-sm">
+                        Bangun Baru
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* Luasan */}
-                <div className="mb-6">
-                  <label htmlFor="area" className="block text-sm font-medium text-card-foreground mb-2">
-                    Luasan <span className="text-red-500">*</span>
+                <div className="space-y-2">
+                  <label htmlFor="area" className="block text-sm font-medium text-card-foreground">
+                    Luasan Area
                   </label>
                   <div className="relative">
-                    <Home className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Home className="absolute left-3.5 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <input
                       id="area"
                       type="text"
-                      required
                       value={formData.area}
                       onChange={(e) => setFormData({...formData, area: e.target.value})}
-                      className="w-full pl-11 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                      placeholder="contoh: 100 m² atau 10x15 m"
+                      className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all text-sm"
+                      placeholder="Contoh: 100 m² atau 10x15 m"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Masukkan luas area dalam meter persegi (m²)
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Masukkan luas area dalam meter persegi (m²) - Opsional, bisa diisi nanti
                   </p>
                 </div>
 
                 {/* Estimasi Budget */}
-                <div className="mb-8">
-                  <label htmlFor="budget" className="block text-sm font-medium text-card-foreground mb-2">
-                    Estimasi Budget <span className="text-red-500">*</span>
+                <div className="space-y-2">
+                  <label htmlFor="budget" className="block text-sm font-medium text-card-foreground">
+                    Estimasi Anggaran
                   </label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">
-                      RP
+                    <span className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium text-sm">
+                      Rp
                     </span>
                     <input
                       id="budget"
                       type="text"
-                      required
-                      value={formData.budget}
-                      onChange={(e) => setFormData({...formData, budget: e.target.value})}
-                      className="w-full pl-14 pr-4 py-3 border border-border rounded-lg bg-background text-card-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                      placeholder="contoh: 100.000.000 - 200.000.000"
+                      value={displayBudget}
+                      onChange={handleBudgetChange}
+                      className="w-full pl-12 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all text-sm"
+                      placeholder="100.000.000"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Berikan estimasi budget untuk proyek Anda
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Berikan perkiraan anggaran untuk proyek Anda - Opsional, bisa diisi nanti
                   </p>
                 </div>
 
+                {/* Details */}
+                <div className="space-y-2">
+                  <label htmlFor="details" className="block text-sm font-medium text-card-foreground">
+                    Detail Tambahan
+                  </label>
+                  <div className="relative">
+                    <FileText className="absolute left-3.5 top-3.5 h-4 w-4 text-muted-foreground" />
+                    <textarea
+                      id="details"
+                      rows={4}
+                      value={formData.details}
+                      onChange={(e) => setFormData({...formData, details: e.target.value})}
+                      className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all resize-none text-sm"
+                      placeholder="Berikan informasi tambahan tentang proyek Anda (opsional)"
+                    />
+                  </div>
+                </div>
+
                 {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-6 py-3 bg-ring text-white rounded-lg hover:bg-ring/90 transition-colors font-medium text-lg disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Kirim Pesan'}
-                </button>
+                <div className="pt-2">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full px-6 py-3 bg-ring text-white hover:bg-ring/90 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
+                  </button>
+                </div>
               </form>
             )}
           </div>

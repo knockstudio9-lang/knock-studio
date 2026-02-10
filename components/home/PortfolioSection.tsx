@@ -42,7 +42,7 @@ export default function PortfolioSection() {
             <Link 
               key={index}
               href="/portfolio"
-              className="group relative aspect-[3/4] overflow-hidden rounded-xl border border-border"
+              className="group relative aspect-[3/4] overflow-hidden border border-border"
             >
               <div className="absolute inset-0 transition-transform duration-300 group-hover:scale-110">
                 <Image

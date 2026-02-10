@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // /components/home/ServicesSection.tsx
 "use client";
 
@@ -95,7 +96,7 @@ export default function ServicesSection() {
             return (
               <div 
                 key={service.id} 
-                className="group relative p-6 rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-ring"
+                className="group relative p-6 border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-ring"
               >
                 {/* Icon */}
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-ring transition-all duration-300 group-hover:bg-ring group-hover:text-white">

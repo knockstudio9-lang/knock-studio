@@ -16,7 +16,7 @@ export default function AboutSection() {
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
           {/* Image Side */}
           <div className="relative">
-            <div className="aspect-4/3 rounded-2xl overflow-hidden relative">
+            <div className="aspect-4/3 overflow-hidden relative">
               <Image
                 src="/home/about-section-2.jpg"
                 alt="Proyek Desain Interior"
@@ -32,7 +32,7 @@ export default function AboutSection() {
                 </div>
               </div>
             </div>
-            <div className="absolute -bottom-6 -right-6 w-48 h-48 rounded-2xl overflow-hidden hidden md:block">
+            <div className="absolute -bottom-6 -right-6 w-48 h-48 overflow-hidden hidden md:block">
               <Image
                 src="/home/about-section-1.jpg"
                 alt="Klien Puas"
@@ -41,7 +41,7 @@ export default function AboutSection() {
               />
               <div className="absolute inset-0 bg-(--color-primary)/80 flex items-center justify-center">
                 <div className="text-center text-white p-4">
-                  <div className="text-3xl font-bold">Puluhan+</div>
+                  <div className="text-3xl font-bold">Puluhan</div>
                   <div className="text-sm mt-1">Klien Puas</div>
                 </div>
               </div>
@@ -51,11 +51,11 @@ export default function AboutSection() {
           {/* Content Side */}
           <div>
             
-            <h2 className="mb-6 text-secondary">
+            <h2 className="mb-6 text-foreground">
               Menciptakan Ruang yang Menginspirasi & Menyenangkan
             </h2>
             
-            <p className="mb-6 text-lg text-foreground FONT">
+            <p className="mb-6 text-lg text-muted-foreground font-semibold">
               Di Knock, kami percaya bahwa setiap ruang memiliki potensi untuk menjadi luar biasa. Dengan pengalaman bertahun-tahun, kami telah mengubah banyak rumah menjadi lebih berkarakter dan fungsional.
             </p>
 

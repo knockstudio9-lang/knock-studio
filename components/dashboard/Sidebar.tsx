@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // components/dashboard/Sidebar.tsx
 "use client";
 
@@ -17,7 +18,8 @@ import {
   User, 
   Contact,
   Wrench,
-  Package
+  Package,
+  Info
 } from "lucide-react";
 
 // Define proper types for navigation items
@@ -39,10 +41,6 @@ export function Sidebar({ userRole }: SidebarProps) {
   const { theme } = useTheme();
   const router = useRouter();
 
-  const handleGoHome = () => {
-    router.push("/");
-  };
-
   const adminNavigation: NavigationItem[] = [
     {
       name: "Dashboard",
@@ -53,6 +51,11 @@ export function Sidebar({ userRole }: SidebarProps) {
       name: "Portfolio",
       href: "/dashboard/admin/portfolio",
       icon: ImageIcon,
+    },
+    {
+      name: "About",
+      href: "/dashboard/admin/about",
+      icon: Info,
     },
     {
       name: "Services",
@@ -109,17 +112,20 @@ export function Sidebar({ userRole }: SidebarProps) {
   const navigation = userRole === "admin" ? adminNavigation : userNavigation;
 
   return (
-    <div className="w-64 bg-card border-r border-border shadow-sm h-full flex flex-col">
-      {/* Logo */}
-      <div className="p-6 border-b border-border">
-        <Link href={userRole === "admin" ? "/dashboard/admin" : "/dashboard/user"} className="flex items-center">
+    <div className="w-64 bg-gradient-to-b from-card to-card/50 border-r border-border/50 backdrop-blur-sm h-full flex flex-col">
+      {/* Logo Section */}
+      <div className="p-6 pb-4">
+        <Link 
+          href={userRole === "admin" ? "/dashboard/admin" : "/dashboard/user"} 
+          className="flex items-center group"
+        >
           {theme === "dark" ? (
             <Image
               src="/logo.gif" 
               alt="Logo" 
               width={300} 
               height={20}
-              className="h-auto w-20" 
+              className="h-auto w-20 transition-transform duration-300 group-hover:scale-105" 
               priority
             />
           ) : (
@@ -128,20 +134,22 @@ export function Sidebar({ userRole }: SidebarProps) {
               alt="Logo" 
               width={300} 
               height={20}
-              className="h-auto w-20" 
+              className="h-auto w-20 transition-transform duration-300 group-hover:scale-105" 
               priority
             />
           )}
         </Link>
-        <p className="text-xs text-muted-foreground mt-2 uppercase tracking-wider font-medium">
-          {userRole === "admin" ? "Admin Panel" : "User Portal"}
-        </p>
+        <div className="mt-3 px-3 py-2 bg-secondary/10 border border-secondary/20">
+          <p className="text-xs text-foreground font-semibold uppercase tracking-widest">
+            {userRole === "admin" ? "Admin Panel" : "User Portal"}
+          </p>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-4 overflow-y-auto">
+      <nav className="flex-1 py-2 overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
         <div className="space-y-1 px-3">
-          {navigation.map((item) => {
+          {navigation.map((item, index) => {
             const Icon = item.icon;
             const isActive = pathname === item.href;
 
@@ -150,12 +158,15 @@ export function Sidebar({ userRole }: SidebarProps) {
               return (
                 <div 
                   key={item.name}
-                  className="flex items-center px-3 py-2 mt-4 mb-1"
+                  className="flex items-center px-3 py-3 mt-6 mb-2"
                 >
-                  <Icon className="size-5 mr-2 text-foreground" />
-                  <span className="font-semibold text-foreground uppercase tracking-wider">
-                    {item.name}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-4 text-secondary" />
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                      {item.name}
+                    </span>
+                  </div>
+                  <div className="flex-1 h-px bg-border/50 ml-3" />
                 </div>
               );
             }
@@ -166,19 +177,24 @@ export function Sidebar({ userRole }: SidebarProps) {
                 <Link
                   key={item.name}
                   href={item.href || "#"}
-                  className={`flex items-center pl-9 pr-3 py-2.5 text-sm rounded-lg transition-all duration-200 group relative ${
+                  className={`flex items-center gap-3 pl-8 pr-3 py-2.5 text-sm transition-all duration-200 group relative overflow-hidden ${
                     isActive 
-                      ? "bg-secondary/10 text-secondary font-medium" 
-                      : "text-foreground hover:bg-muted"
+                      ? "bg-secondary/15 text-secondary font-semibold shadow-sm" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
+                  {/* Active indicator */}
                   {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-secondary rounded-r-full" />
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-secondary to-secondary/50 rounded-r-full" />
                   )}
-                  <Icon className={`h-4 w-4 mr-3 transition-colors ${
-                    isActive ? "text-secondary" : "text-muted-foreground group-hover:text-foreground"
+                  
+                  {/* Hover background effect */}
+                  <div className={`absolute inset-0 bg-gradient-to-r from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isActive ? 'opacity-100' : ''}`} />
+                  
+                  <Icon className={`h-4 w-4 transition-all duration-200 relative z-10 ${
+                    isActive ? "text-secondary" : "text-muted-foreground group-hover:text-foreground group-hover:scale-110"
                   }`} />
-                  {item.name}
+                  <span className="relative z-10">{item.name}</span>
                 </Link>
               );
             }
@@ -188,19 +204,24 @@ export function Sidebar({ userRole }: SidebarProps) {
               <Link
                 key={item.name}
                 href={item.href || "#"}
-                className={`flex items-center px-3 py-2.5 text-sm rounded-lg transition-all duration-200 group relative ${
+                className={`flex items-center gap-3 px-3 py-3 text-sm  transition-all duration-200 group relative overflow-hidden ${
                   isActive 
-                    ? "bg-secondary/10 text-secondary font-medium" 
-                    : "text-foreground hover:bg-muted"
+                    ? "bg-secondary/15 text-secondary font-semibold shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 }`}
               >
+                {/* Active indicator */}
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-secondary rounded-r-full" />
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-secondary to-secondary/50" />
                 )}
-                <Icon className={`h-5 w-5 mr-3 transition-colors ${
-                  isActive ? "text-secondary" : "text-muted-foreground group-hover:text-foreground"
+                
+                {/* Hover background effect */}
+                <div className={`absolute inset-0 bg-gradient-to-r from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 ${isActive ? 'opacity-100' : ''}`} />
+                
+                <Icon className={`h-5 w-5 transition-all duration-200 relative z-10 ${
+                  isActive ? "text-secondary" : "text-muted-foreground group-hover:text-foreground group-hover:scale-110"
                 }`} />
-                {item.name}
+                <span className="relative z-10">{item.name}</span>
               </Link>
             );
           })}
@@ -208,20 +229,23 @@ export function Sidebar({ userRole }: SidebarProps) {
       </nav>
 
       {/* Bottom Actions */}
-      <div className="border-t border-border p-4 space-y-1">
-        <button
-          onClick={handleGoHome}
-          className="w-full flex items-center px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-all duration-200 rounded-lg group"
-        >
-          <Home className="h-5 w-5 mr-3 text-muted-foreground group-hover:text-foreground transition-colors" />
-          Go to Site
-        </button>
+      <div className="border-t border-border/50 p-3 space-y-1 bg-card/80 backdrop-blur-sm">
+        <Link href="/" passHref>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 group relative overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+            <Home className="h-5 w-5 transition-all duration-200 group-hover:scale-110 relative z-10" />
+            <span className="relative z-10">Go to Site</span>
+          </button>
+        </Link>
         <button
           onClick={() => logout()}
-          className="w-full flex items-center px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-all duration-200 rounded-lg group"
+          className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 group relative overflow-hidden"
         >
-          <LogOut className="h-5 w-5 mr-3 text-muted-foreground group-hover:text-foreground transition-colors" />
-          Sign Out
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+          <LogOut className="h-5 w-5 transition-all duration-200 group-hover:scale-110 relative z-10" />
+          <span className="relative z-10">Sign Out</span>
         </button>
       </div>
     </div>

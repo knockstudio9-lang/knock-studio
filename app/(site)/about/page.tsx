@@ -98,7 +98,7 @@ export default function AboutPage() {
                 KNOCK adalah Home & Space Improvement Studio yang membantu pemilik rumah meningkatkan kualitas ruang hidup—baik dari sisi fungsi, estetika, maupun kenyamanan. Kami percaya bahwa rumah bukan sekedar membangun atau memperbaiki, tetapi tentang meningkatkan cara sebuah ruang digunakan dan dirasakan. Karena itu, setiap proyek KNOCK dimulai dengan pemahaman kebutuhan klien, visualisasi desain yang jelas, dan perencanaan yang terukur.
               </p>
 
-              <div className="grid grid-cols-2 gap-8 pt-8">
+              {/* <div className="grid grid-cols-2 gap-8 pt-8">
                 <div className="border-l-4 border-[var(--color-secondary)] pl-6">
                   <div className="text-4xl font-bold text-foreground mb-2">500+</div>
                   <div className="text-muted-foreground">Proyek Selesai</div>
@@ -107,12 +107,12 @@ export default function AboutPage() {
                   <div className="text-4xl font-bold text-foreground mb-2">15+</div>
                   <div className="text-muted-foreground">Tahun Pengalaman</div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Image Side */}
             <div className="relative">
-              <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-2xl relative">
+              <div className="aspect-4/3 overflow-hidden shadow-2xl relative">
                 <Image
                   src="/about/Bricks.png"
                   alt="Knock Studio Team"
@@ -186,7 +186,7 @@ export default function AboutPage() {
               return (
                 <div 
                   key={index} 
-                  className="group p-8 rounded-2xl bg-card shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-border"
+                  className="group p-8 bg-card shadow-lg hover:shadow-xl transition-all duration-500 hover:-translate-y-2 border border-border"
                 >
                   {/* Icon */}
                   <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-xl bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] transition-all duration-500 group-hover:bg-[var(--color-secondary)] group-hover:text-white">
@@ -209,9 +209,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section - Updated to fill 100vh */}
-      <section className="h-screen flex items-center">
-        <div className="container-custom py-20 h-full flex flex-col justify-center">
+      {/* Team Section - Updated to fix mobile issues */}
+      <section className="min-h-screen py-20 lg:py-0 lg:h-screen flex items-center">
+        <div className="container-custom h-full flex flex-col justify-center">
           <div className="mx-auto max-w-2xl text-center mb-12">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Tim Profesional Kami</h2>
             <p className="text-xl text-muted-foreground">
@@ -222,15 +222,16 @@ export default function AboutPage() {
           <div className="flex-grow grid gap-12 lg:grid-cols-2 lg:gap-14 items-start">
             {/* Founder Section - Left */}
             {founder && (
-              <div className="space-y-6 h-full flex flex-col justify-center">
-                {/* Founder Portrait */}
-                <div className="relative max-w-md mx-auto lg:mx-0">
-                  <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl relative">
+              <div className="space-y-6">
+                {/* Founder Portrait - Fixed height for mobile */}
+                <div className="relative max-w-md mx-auto lg:mx-0 w-full">
+                  <div className="aspect-[3/4] w-full overflow-hidden shadow-2xl relative">
                     <Image
                       src={founder.image}
                       alt={founder.name}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
                 </div>
@@ -254,7 +255,7 @@ export default function AboutPage() {
 
             {/* Team Members List - Right */}
             {team.length > 0 && (
-              <div className="space-y-6 h-full flex flex-col justify-center">
+              <div className="space-y-6">
                 <h3 className="text-2xl font-bold text-secondary">Our Team</h3>
                 <div className="space-y-4">
                   {team.map((member, index) => (

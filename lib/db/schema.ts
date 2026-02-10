@@ -48,14 +48,15 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Contact form submissions table
+// Contact form submissions table - Updated
 export const contactSubmissions = pgTable('contact_submissions', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   address: text('address').notNull(),
   service: varchar('service', { length: 100 }).notNull(),
-  area: varchar('area', { length: 100 }).notNull(),
-  budget: varchar('budget', { length: 100 }).notNull(),
+  area: varchar('area', { length: 100 }), // Made optional
+  budget: varchar('budget', { length: 100 }), // Made optional
+  details: text('details'), // New field for additional details
   status: varchar('status', { length: 50 }).default('new'),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow(),

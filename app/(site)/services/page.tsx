@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // app/(site)/services/page.tsx
 import { Button } from "@/components/ui/button";
@@ -107,17 +108,11 @@ const workSteps = [
   {
     number: "05",
     icon: Wrench,
-    title: "Implementation of Development",
-    subtitle: "Pelaksanaan Pembangunan",
+    title: "Scheduling & Development",
+    subtitle: "Perencanaan dan Pembangunan",
   },
   {
     number: "06",
-    icon: FileText,
-    title: "Implementation Schedule",
-    subtitle: "Membuat Jadwal Pelaksanaan",
-  },
-  {
-    number: "07",
     icon: Check,
     title: "Serah Terima Bangunan",
     subtitle: "Building Handover",
@@ -132,71 +127,69 @@ export default async function ServicesPage() {
     <div className="min-h-screen bg-background">
       
       {/* Main Services Section */}
-      <section className="py-20 pt-24 bg-background">
+      <section className="py-24 pt-32 bg-background">
         <div className="container-custom">
-          <div className="mx-auto max-w-2xl text-center mb-16">
+          <div className="mx-auto max-w-2xl text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Layanan Utama Kami</h2>
             <p className="text-xl text-muted-foreground">
               Solusi renovasi dan pembangunan rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
             </p>
           </div>
 
-          <div className="space-y-16">
+          <div className="space-y-28">
             {services.map((service: any, index: number) => {
               const Icon = getIconComponent(service.icon);
               const isEven = index % 2 === 0;
               
               return (
-                <div key={service.id} className={`grid lg:grid-cols-2 gap-12 items-center ${isEven ? '' : 'lg:flex-row-reverse'}`}>
-                  <div className={`relative ${!isEven ? 'lg:order-2' : ''}`}>
-                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
+                <div key={service.id} className={`grid lg:grid-cols-5 gap-16 items-start ${isEven ? '' : 'lg:flex-row-reverse'}`}>
+                  <div className={`lg:col-span-2 ${!isEven ? 'lg:order-2' : ''}`}>
+                    <div className="relative aspect-[3/4] overflow-hidden">
                       <Image
                         src={service.image}
                         alt={service.title}
                         fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 500px"
                         className="object-cover"
                         priority={index === 0}
                       />
                     </div>
-                    <div className="absolute -bottom-6 -right-6 w-2/3 h-2/3 bg-[var(--color-secondary)]/10 rounded-2xl -z-10 hidden lg:block"></div>
                   </div>
                   
-                  <div className={`space-y-6 ${!isEven ? 'lg:order-1' : ''}`}>
-                    <div className="flex items-center gap-4">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
-                        <Icon className="h-8 w-8" />
+                  <div className={`lg:col-span-3 space-y-8 ${!isEven ? 'lg:order-1' : ''}`}>
+                    <div className="flex items-start gap-5">
+                      <div className="flex h-14 w-14 items-center justify-center bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] flex-shrink-0">
+                        <Icon className="h-7 w-7" />
                       </div>
-                      <div>
-                        <h3 className="text-3xl font-bold text-secondary">{service.title}</h3>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                      <div className="flex-1">
+                        <h3 className="text-3xl font-bold text-secondary mb-2">{service.title}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="h-4 w-4" />
-                          {service.duration}
+                          <span>{service.duration}</span>
                         </div>
                       </div>
                     </div>
                     
-                    <p className="text-lg text-muted-foreground">
+                    <p className="text-lg text-muted-foreground leading-relaxed">
                       {service.description}
                     </p>
                     
-                    <div className="bg-card p-6 rounded-xl border border-border">
-                      <h4 className="font-semibold text-secondary mb-3">Cocok untuk:</h4>
-                      <p className="text-muted-foreground">{service.bestFor}</p>
+                    <div className="bg-muted/30 p-7 border-l-4 border-[var(--color-secondary)]">
+                      <h4 className="font-semibold text-secondary mb-3 text-base">Cocok untuk:</h4>
+                      <p className="text-muted-foreground leading-relaxed">{service.bestFor}</p>
                     </div>
                     
-                    <div>
-                      <h4 className="font-semibold text-secondary mb-3">Yang termasuk dalam layanan:</h4>
-                      <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="pt-2">
+                      <h4 className="font-semibold text-secondary mb-5 text-base">Yang termasuk dalam layanan:</h4>
+                      <div className="space-y-3">
                         {service.features.map((feature: string, idx: number) => (
-                          <div key={idx} className="flex items-start gap-2">
+                          <div key={idx} className="flex items-start gap-3">
                             <CheckCircle className="h-5 w-5 text-[var(--color-secondary)] flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground text-sm">{feature}</span>
+                            <span className="text-muted-foreground">{feature}</span>
                           </div>
                         ))}
                       </div>
                     </div>
-
                   </div>
                 </div>
               );
@@ -204,23 +197,23 @@ export default async function ServicesPage() {
           </div>
 
           {/* Service Area */}
-          <div className="max-w-4xl mx-auto mt-20">
-            <Card className="border-2 border-[var(--color-secondary)]/20 bg-gradient-to-br from-[var(--color-secondary)]/5 to-background">
-              <CardHeader className="text-center pb-4">
-                <div className="flex justify-center mb-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
+          <div className="max-w-4xl mx-auto mt-32">
+            <Card className="border border-[var(--color-secondary)]/20 bg-gradient-to-br from-[var(--color-secondary)]/5 to-background">
+              <CardHeader className="text-center pb-6">
+                <div className="flex justify-center mb-6">
+                  <div className="flex h-16 w-16 items-center justify-center bg-[var(--color-secondary)]/10 text-[var(--color-secondary)]">
                     <MapPin className="h-8 w-8" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-secondary">Service Area</CardTitle>
-                <CardDescription className="text-muted-foreground">Area layanan kami meliputi wilayah Jabodetabek</CardDescription>
+                <CardTitle className="text-3xl text-secondary mb-3">Service Area</CardTitle>
+                <CardDescription className="text-muted-foreground text-base">Area layanan kami meliputi wilayah Jabodetabek</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap justify-center gap-3">
+                <div className="flex flex-wrap justify-center gap-4">
                   {serviceArea.map((area, index) => (
                     <div 
                       key={index}
-                      className="px-6 py-3 bg-[var(--color-secondary)] text-white rounded-full font-semibold text-sm hover:bg-[var(--color-secondary-600)] transition-colors shadow-md hover:shadow-lg"
+                      className="px-8 py-3 bg-[var(--color-secondary)] text-white font-semibold text-sm"
                     >
                       {area}
                     </div>
@@ -233,9 +226,9 @@ export default async function ServicesPage() {
       </section>
 
       {/* Services Comparison Section */}
-      <section className="py-20 pt-28 bg-muted/30">
+      <section className="py-24 pt-32 bg-muted/30">
         <div className="container-custom">
-          <div className="mx-auto max-w-3xl text-center mb-16">
+          <div className="mx-auto max-w-3xl text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Bandingkan Layanan Kami</h2>
             <p className="text-xl text-muted-foreground">
               Temukan layanan yang paling sesuai dengan kebutuhan renovasi Anda
@@ -243,20 +236,20 @@ export default async function ServicesPage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full border-collapse bg-background rounded-xl shadow-lg overflow-hidden">
+            <table className="w-full border-collapse bg-background shadow-lg overflow-hidden">
               <thead>
                 <tr className="bg-[var(--color-secondary)]">
-                  <th className="text-left p-6 font-semibold text-white">Fitur Layanan</th>
-                  <th className="text-center p-6 font-semibold text-white">Home Renovation</th>
-                  <th className="text-center p-6 font-semibold text-white">Design Visualization</th>
-                  <th className="text-center p-6 font-semibold text-white">Consultation</th>
-                  <th className="text-center p-6 font-semibold text-white">Cost Estimation</th>
+                  <th className="text-left p-6 font-semibold text-white border-r border-[var(--color-secondary-600)]">Fitur Layanan</th>
+                  <th className="text-center p-6 font-semibold text-white border-r border-[var(--color-secondary-600)]">Home Renovation</th>
+                  <th className="text-center p-6 font-semibold text-white border-r border-[var(--color-secondary-600)]">Design Visualization</th>
+                  <th className="text-center p-6 font-semibold text-white border-r border-[var(--color-secondary-600)]">Consultation</th>
+                  <th className="text-center p-6 font-semibold text-white border-r border-[var(--color-secondary-600)]">Cost Estimation</th>
                   <th className="text-center p-6 font-semibold text-white">Project Execution</th>
                 </tr>
               </thead>
               <tbody>
                 {comparisonData.map((row: any, index: number) => (
-                  <tr key={index} className="border-b border-border hover:bg-muted/50 transition-colors">
+                  <tr key={index} className="border-b border-border">
                     <td className="p-6 text-foreground font-medium">{row.feature}</td>
                     <td className="text-center p-6">
                       {row.renovation ? (
@@ -302,142 +295,118 @@ export default async function ServicesPage() {
       </section>
 
       {/* Work Steps Section - Improved Design */}
-      <section className="py-20 bg-background">
+      <section className="py-24 bg-background">
         <div className="container-custom">
-          <div className="mx-auto max-w-2xl text-center mb-16">
+          <div className="mx-auto max-w-2xl text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Alur Kerja Kami</h2>
             <p className="text-xl text-muted-foreground">
               Proses kerja yang terstruktur dari awal hingga selesai
             </p>
           </div>
 
-          <div className="max-w-5xl mx-auto">
-            {/* Desktop view with 2-column snake layout */}
-            <div className="hidden lg:block relative">
-              <div className="grid grid-cols-2 gap-8">
-                {/* Left Column - First half of steps */}
-                <div className="space-y-8">
-                  {workSteps.slice(0, Math.ceil(workSteps.length / 2)).map((step, index) => {
-                    const Icon = step.icon;
-                    const isLastInColumn = index === Math.ceil(workSteps.length / 2) - 1;
-                    
-                    return (
-                      <div key={index} className="flex flex-col items-center relative">
-                        <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
-                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
-                            </div>
-                            <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
-                          </div>
-                          <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
-                          <p className="text-sm text-muted-foreground">{step.subtitle}</p>
-                        </div>
-                        
-                        {/* Arrow connector for vertical flow within column */}
-                        {!isLastInColumn && (
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
-                            <ArrowRight className="h-6 w-6 text-gray-300 transform rotate-90" />
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+          <div className="max-w-6xl mx-auto">
+            {/* Desktop view - 3 columns */}
+            <div className="hidden lg:grid lg:grid-cols-3 gap-x-12 gap-y-16">
+              {workSteps.map((step, index) => {
+                const Icon = step.icon;
                 
-                {/* Right Column - Second half of steps */}
-                <div className="space-y-8">
-                  {workSteps.slice(Math.ceil(workSteps.length / 2)).map((step, index) => {
+                return (
+                  <div key={index} className="relative">
+                    {/* Connecting line to next step */}
+                    {index < workSteps.length - 1 && (
+                      <div className="absolute top-12 left-full w-12 h-0.5 bg-[var(--color-secondary)]/20 hidden lg:block -translate-x-full z-0" 
+                           style={{ 
+                             display: (index + 1) % 3 === 0 ? 'none' : 'block'
+                           }} 
+                      />
+                    )}
+                    
+                    <div className="relative z-10">
+                      <div className="mb-6">
+                        <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
+                          <span className="text-2xl font-bold">{step.number}</span>
+                        </div>
+                        <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{step.subtitle}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Tablet view - 2 columns */}
+            <div className="hidden md:grid md:grid-cols-2 gap-x-12 gap-y-12 lg:hidden">
+              {workSteps.map((step, index) => {
+                const Icon = step.icon;
+                
+                return (
+                  <div key={index} className="relative">
+                    <div className="mb-6">
+                      <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
+                        <span className="text-2xl font-bold">{step.number}</span>
+                      </div>
+                      <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                        <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{step.subtitle}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Mobile view - Single column with flow */}
+            <div className="md:hidden">
+              <div className="relative">
+                {/* Vertical connecting line */}
+                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-[var(--color-secondary)]/20" />
+                
+                <div className="space-y-12">
+                  {workSteps.map((step, index) => {
                     const Icon = step.icon;
-                    const actualIndex = index + Math.ceil(workSteps.length / 2);
-                    const isLastInColumn = actualIndex === workSteps.length - 1;
                     
                     return (
-                      <div key={actualIndex} className="flex flex-col items-center relative">
-                        <div className="rounded-xl shadow-md p-6 w-full hover:shadow-lg transition-shadow duration-300">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
-                              <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
-                            </div>
-                            <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
+                      <div key={index} className="relative flex gap-6">
+                        <div className="flex-shrink-0 relative z-10">
+                          <div className="w-16 h-16 bg-[var(--color-secondary)] text-white flex items-center justify-center mb-3">
+                            <span className="text-xl font-bold">{step.number}</span>
                           </div>
-                          <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
-                          <p className="text-sm text-muted-foreground">{step.subtitle}</p>
+                          <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center ml-2">
+                            <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                          </div>
                         </div>
                         
-                        {/* Arrow connector for vertical flow within column */}
-                        {!isLastInColumn && (
-                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 z-10">
-                            <ArrowRight className="h-6 w-6 text-gray-300 transform rotate-90" />
-                          </div>
-                        )}
+                        <div className="flex-1 pt-3 space-y-2">
+                          <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
+                          <p className="text-sm text-muted-foreground leading-relaxed">{step.subtitle}</p>
+                        </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
             </div>
-            
-            {/* Tablet view */}
-            <div className="hidden md:grid md:grid-cols-2 gap-6 lg:hidden">
-              {workSteps.map((step, index) => {
-                const Icon = step.icon;
-                
-                return (
-                  <div key={index} className="rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center shrink-0">
-                        <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
-                      </div>
-                      <Icon className="h-8 w-8 text-[var(--color-secondary)] shrink-0" />
-                    </div>
-                    <h3 className="text-base font-semibold text-foreground mb-1">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.subtitle}</p>
-                  </div>
-                );
-              })}
-            </div>
-            
-            {/* Mobile view */}
-            <div className="md:hidden space-y-4">
-              {workSteps.map((step, index) => {
-                const Icon = step.icon;
-                
-                return (
-                  <div key={index} className="rounded-xl shadow-md p-5 hover:shadow-lg transition-shadow duration-300">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[var(--color-secondary)]/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-lg font-bold text-[var(--color-secondary)]">{step.number}</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Icon className="size-5 text-[var(--color-secondary)]" />
-                          <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
-                        </div>
-                        <p className="text-sm text-muted-foreground">{step.subtitle}</p>
-                      </div>
-                    </div>
-                    
-                    {/* Arrow connector for mobile */}
-                    {index < workSteps.length - 1 && (
-                      <div className="flex justify-center mt-4">
-                        <ArrowRight className="h-5 w-5 text-gray-300 transform rotate-90" />
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-24 bg-muted/30">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Siap Memulai Renovasi Rumah Anda?</h2>
-            <p className="mb-8 text-xl text-muted-foreground">
+            <p className="mb-10 text-xl text-muted-foreground">
               Jadwalkan konsultasi dan survey gratis untuk mendiskusikan kebutuhan renovasi Anda
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -447,7 +416,7 @@ export default async function ServicesPage() {
                 </Button>
               </Link>
               <Link href="/portfolio">
-                <Button size="lg" variant="outline" className="text-foreground border-2">
+                <Button size="lg" variant="outline" className="text-foreground border-2 hover:bg-muted/50">
                   Lihat Portfolio Kami
                 </Button>
               </Link>

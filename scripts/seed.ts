@@ -72,13 +72,13 @@ async function uploadToCloudinary(
  */
 const sampleProjects = [
   {
-    title: "Knock",
+    title: "Mr.R House",
     category: "Renovasi Total",
-    location: "Puri Bintaro",
-    year: "2023",
-    area: "450m² / 48T",
+    location: "Puri Bintaro Residence, Tangerang Selatan",
+    year: "2024",
+    area: "60m",
     completion: "2023",
-    description: "Transformasi total villa tradisional menjadi hunian mewah modern dengan ruang terbuka dan integrasi indoor-outdoor yang seamless.",
+    description: "Full Renovasi (Facade, Backyard, Living Room, Bathroom, & Bedroom)",
     beforeImagePath: path.join(process.cwd(), 'public/portfolio/1/before.jpg'),
     afterImagePath: path.join(process.cwd(), 'public/portfolio/1/after.jpeg'),
     galleryImagePaths: [
@@ -86,6 +86,12 @@ const sampleProjects = [
       path.join(process.cwd(), 'public/portfolio/1/gallery2.jpeg'),
       path.join(process.cwd(), 'public/portfolio/1/gallery3.jpeg'),
       path.join(process.cwd(), 'public/portfolio/1/gallery4.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery5.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery6.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery7.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery8.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery9.jpeg'),
+      path.join(process.cwd(), 'public/portfolio/1/gallery10.jpeg'),
     ],
     tags: ["Modern", "Mewah", "Berkelanjutan"],
   },
