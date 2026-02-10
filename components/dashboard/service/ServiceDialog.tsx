@@ -9,9 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
-import { toast } from "sonner"; // Import from sonner instead of useToast
+import { toast } from "sonner";
 
 interface Service {
   id: number;
@@ -157,10 +157,12 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
   };
 
   const handleRemoveFeature = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      features: prev.features.filter((_, i) => i !== index),
-    }));
+    if (formData.features.length > 1) {
+      setFormData((prev) => ({
+        ...prev,
+        features: prev.features.filter((_, i) => i !== index),
+      }));
+    }
   };
 
   const handleFeatureChange = (index: number, value: string) => {
@@ -196,7 +198,7 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
 
       toast.success(`Service ${service ? "updated" : "created"} successfully`);
       onSuccess();
-      onOpenChange(false); // Close the dialog after successful submission
+      onOpenChange(false);
     } catch (error) {
       toast.error(`Failed to ${service ? "update" : "create"} service`);
     } finally {
@@ -206,17 +208,18 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto w-full">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-xl font-semibold">
             {service ? "Edit Service" : "Add New Service"}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+          {/* Basic Information */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="serviceId">Service ID</Label>
+              <Label htmlFor="serviceId" className="text-sm font-medium">Service ID</Label>
               <Input
                 id="serviceId"
                 value={formData.serviceId}
@@ -226,16 +229,17 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
                 placeholder="e.g., home-renovation"
                 required
                 disabled={!!service}
+                className="bg-background"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="icon">Icon</Label>
+              <Label htmlFor="icon" className="text-sm font-medium">Icon</Label>
               <Select
                 value={formData.icon}
                 onValueChange={(value) => setFormData({ ...formData, icon: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-background">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -249,32 +253,38 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
+          {/* Title and Description */}
+          <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="title" className="text-sm font-medium">Title</Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+                className="bg-background"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-sm font-medium">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={3}
+                required
+                className="bg-background resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Duration and Order */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="duration" className="text-sm font-medium">Duration</Label>
               <Input
                 id="duration"
                 value={formData.duration}
@@ -283,87 +293,105 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
                 }
                 placeholder="e.g., 1-4 bulan"
                 required
+                className="bg-background"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="order">Display Order</Label>
+              <Label htmlFor="order" className="text-sm font-medium">Display Order</Label>
               <Input
                 id="order"
                 type="number"
                 value={formData.order}
                 onChange={(e) =>
-                  setFormData({ ...formData, order: parseInt(e.target.value) })
+                  setFormData({ ...formData, order: parseInt(e.target.value) || 0 })
                 }
                 required
+                className="bg-background"
               />
             </div>
           </div>
 
+          {/* Best For */}
           <div className="space-y-2">
-            <Label htmlFor="bestFor">Best For</Label>
+            <Label htmlFor="bestFor" className="text-sm font-medium">Best For</Label>
             <Textarea
               id="bestFor"
               value={formData.bestFor}
               onChange={(e) => setFormData({ ...formData, bestFor: e.target.value })}
               rows={2}
               required
+              className="bg-background resize-none"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Features</Label>
-            {formData.features.map((feature, index) => (
-              <div key={index} className="flex gap-2">
-                <Input
-                  value={feature}
-                  onChange={(e) => handleFeatureChange(index, e.target.value)}
-                  placeholder={`Feature ${index + 1}`}
-                />
-                {formData.features.length > 1 && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleRemoveFeature(index)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            ))}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddFeature}
-            >
-              Add Feature
-            </Button>
+          {/* Features */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Features</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAddFeature}
+                className="h-8"
+              >
+                Add Feature
+              </Button>
+            </div>
+            <div className="space-y-3">
+              {formData.features.map((feature, index) => (
+                <div key={index} className="flex gap-2">
+                  <Input
+                    value={feature}
+                    onChange={(e) => handleFeatureChange(index, e.target.value)}
+                    placeholder={`Feature ${index + 1}`}
+                    className="bg-background"
+                  />
+                  {formData.features.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleRemoveFeature(index)}
+                      className="h-10 w-10 text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Service Image</Label>
+          {/* Image Upload */}
+          <div className="space-y-4">
+            <Label className="text-sm font-medium">Service Image</Label>
             {formData.image ? (
-              <div className="relative w-full h-48 rounded-lg overflow-hidden">
-                <Image
-                  src={formData.image}
-                  alt="Service image"
-                  fill
-                  className="object-cover"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={handleRemoveImage}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div className="relative group">
+                <div className="relative w-full h-64 rounded-lg overflow-hidden border border-border">
+                  <Image
+                    src={formData.image}
+                    alt="Service image"
+                    fill
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleRemoveImage}
+                      className="shadow-lg"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Remove Image
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : (
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+              <div className="border-2 border-dashed border-border rounded-lg p-12 text-center hover:border-muted-foreground/50 transition-colors">
                 <Input
                   type="file"
                   accept="image/*"
@@ -374,21 +402,34 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
                 />
                 <Label htmlFor="image-upload" className="cursor-pointer">
                   {isUploading ? (
-                    <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+                    <div className="flex flex-col items-center">
+                      <Loader2 className="h-12 w-12 animate-spin text-muted-foreground mb-4" />
+                      <p className="text-sm text-muted-foreground">Uploading...</p>
+                    </div>
                   ) : (
-                    <>
-                      <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
+                    <div className="flex flex-col items-center">
+                      <ImageIcon className="h-12 w-12 text-muted-foreground mb-4" />
+                      <p className="text-sm text-muted-foreground mb-2">
                         Click to upload image
                       </p>
-                    </>
+                      <p className="text-xs text-muted-foreground">
+                        PNG, JPG, GIF up to 10MB
+                      </p>
+                    </div>
                   )}
                 </Label>
               </div>
             )}
           </div>
 
-          <div className="flex items-center space-x-2">
+          {/* Active Status */}
+          <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg">
+            <div className="space-y-0.5">
+              <Label htmlFor="isActive" className="text-base font-medium">Active Status</Label>
+              <p className="text-sm text-muted-foreground">
+                {formData.isActive ? "Service is visible to customers" : "Service is hidden"}
+              </p>
+            </div>
             <Switch
               id="isActive"
               checked={formData.isActive}
@@ -396,18 +437,19 @@ export function ServiceDialog({ open, onOpenChange, service, onSuccess }: Servic
                 setFormData({ ...formData, isActive: checked })
               }
             />
-            <Label htmlFor="isActive">Active</Label>
           </div>
 
-          <div className="flex justify-end gap-2">
+          {/* Actions */}
+          <div className="flex justify-end gap-3 pt-4 border-t">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || isUploading}>
+            <Button type="submit" disabled={isSubmitting || isUploading} className="min-w-[120px]">
               {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {service ? "Update" : "Create"} Service
             </Button>
