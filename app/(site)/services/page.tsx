@@ -204,9 +204,9 @@ export default function ServicesPage() {
       <section className="py-20 pt-24 bg-background">
         <div className="container-custom">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Layanan Utama Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Layanan Utama Kami</h2>
             <p className="text-xl text-muted-foreground">
-              Solusi renovasi rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
+              Solusi renovasi dan pembangunan rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
             </p>
           </div>
 
@@ -235,7 +235,7 @@ export default function ServicesPage() {
                         <Icon className="h-8 w-8" />
                       </div>
                       <div>
-                        <h3 className="text-3xl font-bold text-foreground">{service.title}</h3>
+                        <h3 className="text-3xl font-bold text-secondary">{service.title}</h3>
                         <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
                           <Clock className="h-4 w-4" />
                           {service.duration}
@@ -248,12 +248,12 @@ export default function ServicesPage() {
                     </p>
                     
                     <div className="bg-card p-6 rounded-xl border border-border">
-                      <h4 className="font-semibold text-foreground mb-3">Cocok untuk:</h4>
+                      <h4 className="font-semibold text-secondary mb-3">Cocok untuk:</h4>
                       <p className="text-muted-foreground">{service.bestFor}</p>
                     </div>
                     
                     <div>
-                      <h4 className="font-semibold text-foreground mb-3">Yang termasuk dalam layanan:</h4>
+                      <h4 className="font-semibold text-secondary mb-3">Yang termasuk dalam layanan:</h4>
                       <div className="grid sm:grid-cols-2 gap-3">
                         {service.features.map((feature, idx) => (
                           <div key={idx} className="flex items-start gap-2">
@@ -279,7 +279,7 @@ export default function ServicesPage() {
                     <MapPin className="h-8 w-8" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl text-foreground">Service Area</CardTitle>
+                <CardTitle className="text-3xl text-secondary">Service Area</CardTitle>
                 <CardDescription className="text-muted-foreground">Area layanan kami meliputi wilayah Jabodetabek</CardDescription>
               </CardHeader>
               <CardContent>
@@ -303,7 +303,7 @@ export default function ServicesPage() {
       <section className="py-20 pt-28 bg-muted/30">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Bandingkan Layanan Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Bandingkan Layanan Kami</h2>
             <p className="text-xl text-muted-foreground">
               Temukan layanan yang paling sesuai dengan kebutuhan renovasi Anda
             </p>
@@ -372,7 +372,7 @@ export default function ServicesPage() {
       <section className="py-20 bg-background">
         <div className="container-custom">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Alur Kerja Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Alur Kerja Kami</h2>
             <p className="text-xl text-muted-foreground">
               Proses kerja yang terstruktur dari awal hingga selesai
             </p>
@@ -503,7 +503,7 @@ export default function ServicesPage() {
       <section className="py-20 bg-muted/30">
         <div className="container-custom">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Siap Memulai Renovasi Rumah Anda?</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Siap Memulai Renovasi Rumah Anda?</h2>
             <p className="mb-8 text-xl text-muted-foreground">
               Jadwalkan konsultasi dan survey gratis untuk mendiskusikan kebutuhan renovasi Anda
             </p>

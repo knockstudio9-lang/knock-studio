@@ -9,7 +9,7 @@ export default function CTASection() {
       <div className="container-custom">
         <div className="mx-auto max-w-3xl text-center">
           
-          <h2 className="mb-6 text-foreground">
+          <h2 className="mb-6 text-secondary">
             Siap Mengubah Ruang Anda?
           </h2>
           
@@ -33,15 +33,15 @@ export default function CTASection() {
 
           <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="p-4 rounded-lg bg-card">
-              <div className="text-2xl font-bold text-foreground mb-2">Gratis</div>
+              <div className="text-2xl font-bold text-secondary mb-2">Gratis</div>
               <div className="text-sm text-muted-foreground">Konsultasi Awal</div>
             </div>
             <div className="p-4 rounded-lg bg-card">
-              <div className="text-2xl font-bold text-foreground mb-2">24/7</div>
+              <div className="text-2xl font-bold text-secondary mb-2">24/7</div>
               <div className="text-sm text-muted-foreground">Dukungan Pelanggan</div>
             </div>
             <div className="p-4 rounded-lg bg-card">
-              <div className="text-2xl font-bold text-foreground mb-2">100%</div>
+              <div className="text-2xl font-bold text-secondary mb-2">100%</div>
               <div className="text-sm text-muted-foreground">Jaminan Kepuasan</div>
             </div>
           </div>

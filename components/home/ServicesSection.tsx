@@ -1,60 +1,109 @@
 // /components/home/ServicesSection.tsx
 "use client";
 
-import { Home, Ruler, Layers, Wallet } from "lucide-react";
+import { Home, Ruler, Layers, Wallet, Eye, Calculator, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Service } from "@/lib/db/schema";
 
-const services = [
-  {
-    icon: Home,
-    title: "Home Renovation",
-    description: "Renovasi rumah skala kecil hingga menengah dengan pengerjaan rapih dan terukur.",
-  },
-  {
-    icon: Ruler,
-    title: "Design Visualization",
-    description: "Desain denah dan visual 3D ringan untuk membantu. melihat dan menyesuaikan kebutuhan sebelum renovasi dimulai.",
-  },
-  {
-    icon: Wallet,
-    title: "Consultation & Survey",
-    description: "Konsultasi kebutuhan renovasi dan survey lokasi untuk menentukan solusi terbaik.",
-  },
-  {
-    icon: Layers,
-    title: "Project Execution",
-    description: "Pengerjaan renovasi oleh tim tukang berpengalaman dengan pengawasan langsung agar hasil sesuai rencana.",
-  },
-];
+// Map icon names from database to Lucide React components
+const iconMap: Record<string, any> = {
+  Home,
+  Ruler,
+  Layers,
+  Wallet,
+  Eye,
+  MessageSquare,
+  Calculator
+};
 
 export default function ServicesSection() {
+  const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('/api/services');
+        const data = await response.json();
+        
+        if (data.success) {
+          // Only take the first 4 services
+          setServices(data.data.slice(0, 4));
+        } else {
+          setError(data.error || 'Failed to fetch services');
+        }
+      } catch (err) {
+        setError('An error occurred while fetching services');
+        console.error('Error fetching services:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-background transition-colors duration-300 min-h-screen flex items-center">
+        <div className="container-custom pt-20">
+          <div className="mx-auto max-w-2xl text-center mb-16">
+            <h2 className="mb-4 text-secondary">Our Services</h2>
+            <p className="text-lg text-muted-foreground">
+              Loading services...
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="section-padding bg-background transition-colors duration-300 min-h-screen flex items-center">
+        <div className="container-custom pt-20">
+          <div className="mx-auto max-w-2xl text-center mb-16">
+            <h2 className="mb-4 text-secondary">Our Services</h2>
+            <p className="text-lg text-muted-foreground">
+              Error: {error}
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="section-padding bg-background transition-colors duration-300 min-h-screen flex items-center">
       <div className="container-custom pt-20">
         {/* Header */}
         <div className="mx-auto max-w-2xl text-center mb-16">
-          <h2 className="mb-4 text-foreground">Our Services</h2>
+          <h2 className="mb-4 text-secondary">Our Services</h2>
           <p className="text-lg text-muted-foreground">
-            Comprehensive design solutions tailored to bring your vision to life
+            Solusi renovasi dan pembangunan rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
           </p>
         </div>
 
         {/* Services Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {services.map((service, index) => {
-            const Icon = service.icon;
+          {services.map((service) => {
+            // Get the icon component from the iconMap, fallback to Home if not found
+            const IconComponent = iconMap[service.icon] || Home;
+            
             return (
               <div 
-                key={index} 
+                key={service.id} 
                 className="group relative p-6 rounded-lg border border-border bg-card transition-all duration-300 hover:shadow-lg hover:border-ring"
               >
                 {/* Icon */}
                 <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-muted text-ring transition-all duration-300 group-hover:bg-ring group-hover:text-white">
-                  <Icon className="h-6 w-6" />
+                  <IconComponent className="h-6 w-6" />
                 </div>
                 
                 {/* Title */}
-                <h3 className="text-xl font-bold mb-3 text-card-foreground">
+                <h3 className="text-xl font-bold mb-3 text-secondary">
                   {service.title}
                 </h3>
                 

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
-// Fallback data
+// Fallback data for values
 const fallbackValues = [
   {
     icon: "Award",
@@ -32,44 +32,6 @@ const fallbackValues = [
   },
 ];
 
-const fallbackTeam = [
-  {
-    name: "Andi Pratama",
-    position: "Principal Architect",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8GVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Siti Nurhaliza",
-    position: "Lead Interior Designer",
-    image: "https://images.unsplash.com/photo-1494790108755-2616b332c6ca?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8GVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Budi Santoso",
-    position: "Senior 3D Visualizer",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWlfHx8GVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-  },
-  {
-    name: "Maya Putri",
-    position: "Project Manager",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWlfHx8GVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=80",
-  },
-];
-
-const fallbackContent = {
-  mainAbout: {
-    title: "Menciptakan Ruang yang Menginspirasi",
-    highlightText: "Menginspirasi",
-    description: "KNOCK adalah Home & Space Improvement Studio yang membantu pemilik rumah meningkatkan kualitas ruang hidup—baik dari sisi fungsi, estetika, maupun kenyamanan. Kami percaya bahwa rumah bukan sekedar membangun atau memperbaiki, tetapi tentang meningkatkan cara sebuah ruang digunakan dan dirasakan. Karena itu, setiap proyek KNOCK dimulai dengan pemahaman kebutuhan klien, visualisasi desain yang jelas, dan perencanaan yang terukur.",
-    image: "/about/Bricks.png",
-  },
-  hero: {
-    title: "Tentang Knock Studio",
-    highlightText: "Knock Studio",
-    description: "Menciptakan ruang impian sejak tahun 2021 dengan desain yang inovatif dan berkelanjutan.",
-    image: "/about/aset1.png",
-  },
-};
-
 // Icon mapping
 const iconMap: Record<string, any> = {
   Award,
@@ -80,8 +42,8 @@ const iconMap: Record<string, any> = {
 
 export default function AboutPage() {
   const [values, setValues] = useState(fallbackValues);
-  const [team, setTeam] = useState(fallbackTeam);
-  const [content, setContent] = useState(fallbackContent);
+  const [founder, setFounder] = useState<any>(null);
+  const [team, setTeam] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -101,37 +63,12 @@ export default function AboutPage() {
         if (teamRes.ok) {
           const teamData = await teamRes.json();
           if (teamData.success && teamData.data.length > 0) {
-            setTeam(teamData.data);
-          }
-        }
-
-        // Fetch content sections
-        const contentRes = await fetch('/api/about/content');
-        if (contentRes.ok) {
-          const contentData = await contentRes.json();
-          if (contentData.success && contentData.data.length > 0) {
-            const sections = contentData.data;
-            const newContent: any = { ...fallbackContent };
+            // Separate founder and team members
+            const founderData = teamData.data.find((member: any) => member.isFounder);
+            const teamMembers = teamData.data.filter((member: any) => !member.isFounder);
             
-            sections.forEach((section: any) => {
-              if (section.sectionId === 'main-about') {
-                newContent.mainAbout = {
-                  title: section.title,
-                  highlightText: section.highlightText,
-                  description: section.description,
-                  image: section.image,
-                };
-              } else if (section.sectionId === 'hero') {
-                newContent.hero = {
-                  title: section.title,
-                  highlightText: section.highlightText,
-                  description: section.description,
-                  image: section.image,
-                };
-              }
-            });
-            
-            setContent(newContent);
+            setFounder(founderData);
+            setTeam(teamMembers);
           }
         }
       } catch (error) {
@@ -147,38 +84,37 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* About Section */}
+      {/* Main About Section */}
       <section className="min-h-screen flex items-center">
         <div className="container-custom py-20">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center">
             {/* Content Side */}
             <div className="space-y-6">
-              <h2 className="text-4xl md:text-5xl font-bold text-foreground">
-                {content.mainAbout.title.replace(content.mainAbout.highlightText || '', '')}
-                <span className="text-(--color-secondary)">{content.mainAbout.highlightText}</span>
+              <h2 className="text-4xl md:text-5xl font-bold text-secondary">
+                Menciptakan Ruang yang Menginspirasi
               </h2>
               
               <p className="text-lg text-muted-foreground leading-relaxed">
-                {content.mainAbout.description}
+                KNOCK adalah Home & Space Improvement Studio yang membantu pemilik rumah meningkatkan kualitas ruang hidup—baik dari sisi fungsi, estetika, maupun kenyamanan. Kami percaya bahwa rumah bukan sekedar membangun atau memperbaiki, tetapi tentang meningkatkan cara sebuah ruang digunakan dan dirasakan. Karena itu, setiap proyek KNOCK dimulai dengan pemahaman kebutuhan klien, visualisasi desain yang jelas, dan perencanaan yang terukur.
               </p>
 
-              {/* <div className="grid grid-cols-2 gap-8 pt-8">
-                <div className="border-l-4 border-(--color-secondary) pl-6">
+              <div className="grid grid-cols-2 gap-8 pt-8">
+                <div className="border-l-4 border-[var(--color-secondary)] pl-6">
                   <div className="text-4xl font-bold text-foreground mb-2">500+</div>
                   <div className="text-muted-foreground">Proyek Selesai</div>
                 </div>
-                <div className="border-l-4 border-(--color-secondary) pl-6">
+                <div className="border-l-4 border-[var(--color-secondary)] pl-6">
                   <div className="text-4xl font-bold text-foreground mb-2">15+</div>
                   <div className="text-muted-foreground">Tahun Pengalaman</div>
                 </div>
-              </div> */}
+              </div>
             </div>
 
             {/* Image Side */}
             <div className="relative">
               <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-2xl relative">
                 <Image
-                  src={content.mainAbout.image}
+                  src="/about/Bricks.png"
                   alt="Knock Studio Team"
                   fill
                   className="object-cover"
@@ -195,12 +131,11 @@ export default function AboutPage() {
         <div className="container-custom flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
           {/* Content on the left */}
           <div className="w-full lg:w-1/2 z-10">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-foreground">
-              {content.hero.title.replace(content.hero.highlightText || '', '')}
-              <span className="text-foreground">{content.hero.highlightText}</span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-secondary">
+              Tentang Knock Studio
             </h1>
             <p className="text-lg md:text-xl mb-8 text-muted-foreground max-w-lg">
-              {content.hero.description}
+              Menciptakan ruang impian sejak tahun 2021 dengan desain yang inovatif dan berkelanjutan.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/schedule">
@@ -221,7 +156,7 @@ export default function AboutPage() {
           <div className="w-full lg:w-1/2 relative">
             <div className="aspect-4/3 lg:aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
               <Image
-                src={content.hero.image}
+                src="/about/aset1.png"
                 alt="Modern architecture"
                 fill
                 className="object-cover"
@@ -234,12 +169,12 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
-
+      
       {/* Values Section */}
       <section className="min-h-screen flex items-center">
         <div className="container-custom py-20">
           <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Nilai-Nilai Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Nilai-Nilai Kami</h2>
             <p className="text-xl text-muted-foreground">
               Prinsip yang memandu setiap keputusan desain kami
             </p>
@@ -259,7 +194,7 @@ export default function AboutPage() {
                   </div>
                   
                   {/* Title */}
-                  <h3 className="text-2xl font-bold mb-4 text-foreground">
+                  <h3 className="text-2xl font-bold mb-4 text-secondary">
                     {value.title}
                   </h3>
                   
@@ -274,65 +209,73 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
-      {/* <section className="min-h-screen flex items-center">
-        <div className="container-custom py-20">
-          <div className="mx-auto max-w-2xl text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">Tim Profesional Kami</h2>
+      {/* Team Section - Updated to fill 100vh */}
+      <section className="h-screen flex items-center">
+        <div className="container-custom py-20 h-full flex flex-col justify-center">
+          <div className="mx-auto max-w-2xl text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Tim Profesional Kami</h2>
             <p className="text-xl text-muted-foreground">
               Berkenalan dengan tim kreatif yang siap mewujudkan visi Anda
             </p>
           </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {team.map((member, index) => (
-              <div key={index} className="group text-center">
-                <div className="aspect-square rounded-2xl overflow-hidden mb-6 relative shadow-lg">
-                  <Image
-                    src={member.image}
-                    alt={member.name}
-                    fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-primary)]/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          <div className="flex-grow grid gap-12 lg:grid-cols-2 lg:gap-14 items-start">
+            {/* Founder Section - Left */}
+            {founder && (
+              <div className="space-y-6 h-full flex flex-col justify-center">
+                {/* Founder Portrait */}
+                <div className="relative max-w-md mx-auto lg:mx-0">
+                  <div className="aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl relative">
+                    <Image
+                      src={founder.image}
+                      alt={founder.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-2">{member.name}</h3>
-                <p className="text-muted-foreground">{member.position}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section> */}
 
-      {/* CTA Section */}
-      {/* <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-800)] text-white">
-        <div className="container-custom py-20">
-          <div className="mx-auto max-w-4xl text-center">
-            <h2 className="text-4xl md:text-6xl font-bold mb-8">
-              Tertarik Bekerja dengan Kami?
-            </h2>
-            
-            <p className="mb-12 text-xl md:text-2xl text-gray-100 max-w-3xl mx-auto leading-relaxed">
-              Mari diskusikan proyek Anda bersama tim kami. Kami siap membantu mewujudkan 
-              ruang impian Anda dengan pendekatan personal dan profesional.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <Link href="/schedule">
-                <Button size="lg" className="bg-white text-foreground hover:bg-gray-100 transition-all duration-300 text-lg px-8 py-6 group">
-                  Jadwalkan Konsultasi
-                  <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-                </Button>
-              </Link>
-              <Link href="/portfolio">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-foreground transition-all duration-300 text-lg px-8 py-6">
-                  Lihat Karya Kami
-                </Button>
-              </Link>
-            </div>
+                {/* Founder Info */}
+                <div className="space-y-3">
+                  <h3 className="text-3xl mb-1 font-bold text-secondary">
+                    {founder.name}
+                  </h3>
+                  <p className="text-lg text-muted-foreground">
+                    {founder.position}
+                  </p>
+                  {founder.bio && (
+                    <p className="text-muted-foreground leading-relaxed pt-2">
+                      {founder.bio}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Team Members List - Right */}
+            {team.length > 0 && (
+              <div className="space-y-6 h-full flex flex-col justify-center">
+                <h3 className="text-2xl font-bold text-secondary">Our Team</h3>
+                <div className="space-y-4">
+                  {team.map((member, index) => (
+                    <div 
+                      key={index}
+                      className="border-l-2 border-border pl-6 py-2"
+                    >
+                      <h4 className="text-lg font-semibold text-secondary">
+                        {member.name}
+                      </h4>
+                      <p className="text-muted-foreground">
+                        {member.position}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </section> */}
+      </section>
     </div>
   );
 }

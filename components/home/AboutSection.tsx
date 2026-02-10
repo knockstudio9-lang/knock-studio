@@ -51,11 +51,11 @@ export default function AboutSection() {
           {/* Content Side */}
           <div>
             
-            <h2 className="mb-6 text-foreground">
+            <h2 className="mb-6 text-secondary">
               Menciptakan Ruang yang Menginspirasi & Menyenangkan
             </h2>
             
-            <p className="mb-6 text-lg text-muted-foreground FONT">
+            <p className="mb-6 text-lg text-foreground FONT">
               Di Knock, kami percaya bahwa setiap ruang memiliki potensi untuk menjadi luar biasa. Dengan pengalaman bertahun-tahun, kami telah mengubah banyak rumah menjadi lebih berkarakter dan fungsional.
             </p>
 

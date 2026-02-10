@@ -31,7 +31,7 @@ export default function PortfolioSection() {
     <section className="section-padding bg-background py-10 transition-colors duration-300">
       <div className="container-custom pt-20">
         <div className="mx-auto max-w-2xl text-center mb-16">
-          <h2 className="mb-4 text-foreground">Proyek Unggulan</h2>
+          <h2 className="mb-4 text-secondary">Proyek Unggulan</h2>
           <p className="text-lg text-muted-foreground">
             Ingin melihat hasil kerja kami? Jelajahi portofolio proyek kami di sini.
           </p>

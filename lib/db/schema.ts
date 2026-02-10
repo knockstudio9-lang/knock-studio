@@ -94,33 +94,6 @@ export const serviceComparisonFeatures = pgTable('service_comparison_features', 
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// About page content table
-export const aboutContent = pgTable('about_content', {
-  id: serial('id').primaryKey(),
-  sectionId: varchar('section_id', { length: 100 }).notNull().unique(), // e.g., 'main-about', 'hero'
-  title: text('title').notNull(),
-  subtitle: text('subtitle'),
-  description: text('description').notNull(),
-  highlightText: text('highlight_text'), // For highlighted/colored text in title
-  image: varchar('image', { length: 500 }),
-  imagePublicId: varchar('image_public_id', { length: 500 }),
-  secondaryImage: varchar('secondary_image', { length: 500 }),
-  secondaryImagePublicId: varchar('secondary_image_public_id', { length: 500 }),
-  ctaButtons: jsonb('cta_buttons').$type<Array<{
-    text: string;
-    href: string;
-    variant: 'default' | 'outline';
-  }>>(),
-  stats: jsonb('stats').$type<Array<{
-    value: string;
-    label: string;
-  }>>(),
-  order: integer('order').default(0),
-  isActive: boolean('is_active').default(true),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
-
 // About values table
 export const aboutValues = pgTable('about_values', {
   id: serial('id').primaryKey(),
@@ -141,6 +114,7 @@ export const teamMembers = pgTable('team_members', {
   image: varchar('image', { length: 500 }).notNull(),
   imagePublicId: varchar('image_public_id', { length: 500 }),
   bio: text('bio'),
+  isFounder: boolean('is_founder').default(false),
   order: integer('order').default(0),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at').defaultNow(),
@@ -158,8 +132,6 @@ export type Service = typeof services.$inferSelect;
 export type NewService = typeof services.$inferInsert;
 export type ServiceComparisonFeature = typeof serviceComparisonFeatures.$inferSelect;
 export type NewServiceComparisonFeature = typeof serviceComparisonFeatures.$inferInsert;
-export type AboutContent = typeof aboutContent.$inferSelect;
-export type NewAboutContent = typeof aboutContent.$inferInsert;
 export type AboutValue = typeof aboutValues.$inferSelect;
 export type NewAboutValue = typeof aboutValues.$inferInsert;
 export type TeamMember = typeof teamMembers.$inferSelect;
