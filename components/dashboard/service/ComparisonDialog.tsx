@@ -1,4 +1,4 @@
-// components/dashboard/ComparisonDialog.tsx
+// components/dashboard/service/ComparisonDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";

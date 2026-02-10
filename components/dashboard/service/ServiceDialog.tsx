@@ -1,4 +1,4 @@
-// components/dashboard/ServiceDialog.tsx
+// components/dashboard/service/ServiceDialog.tsx
 "use client";
 
 import { useState, useEffect } from "react";

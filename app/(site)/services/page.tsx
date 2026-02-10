@@ -21,127 +21,55 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import * as LucideIcons from "lucide-react";
 
-const services = [
-  {
-    id: "home-renovation",
-    icon: Home,
-    title: "Home Renovation",
-    description: "Renovasi rumah skala kecil hingga menengah dengan pengerjaan rapih dan terukur.",
-    duration: "1-4 bulan",
-    features: [
-      "Renovasi ruang tamu dan keluarga",
-      "Perbaikan struktur dan finishing",
-      "Upgrade material berkualitas",
-      "Pengawasan langsung tim ahli",
-    ],
-    bestFor: "Pemilik rumah yang ingin memperbarui tampilan dan fungsi ruangan tanpa perubahan struktur besar",
-    image: "/services/Service1.jpg.jpeg",
-  },
-  {
-    id: "design-visualization",
-    icon: Eye,
-    title: "Design Visualization",
-    description: "Desain denah gambar kerja dan visual 3D untuk membantu melihat dan menyesuaikan kebutuhan sebelum renovasi atau pembangunan dimulai.",
-    duration: "1-2 minggu",
-    features: [
-      "Pembuatan denah layout ruangan",
-      "Visualisasi 3D rendering",
-      "Multiple design options",
-      "Revisi desain unlimited",
-    ],
-    bestFor: "Klien yang ingin melihat hasil akhir renovasi secara visual sebelum memulai pekerjaan",
-    image: "/services/Service2.jpg.jpeg",
-  },
-  {
-    id: "consultation-survey",
-    icon: MessageSquare,
-    title: "Consultation & Survey",
-    description: "Konsultasi kebutuhan pembangunan atau renovasi dan survey lokasi untuk menentukan solusi terbaik.",
-    duration: "1-3 hari",
-    features: [
-      "Konsultasi kebutuhan detail",
-      "Survey dan pengukuran lokasi",
-      "Analisis kondisi eksisting",
-      "Rekomendasi solusi terbaik",
-    ],
-    bestFor: "Siapa saja yang ingin memulai proyek renovasi dengan perencanaan yang matang",
-    image: "/services/Service3.jpg.jpeg",
-  },
-  {
-    id: "cost-estimation",
-    icon: Calculator,
-    title: "Cost Estimation (RAB)",
-    description: "Estimasi biaya yang jelas dan transparan agar bisa menyesuaikan budget sejak awal.",
-    duration: "3-5 hari",
-    features: [
-      "Rincian biaya material detail",
-      "Estimasi biaya tenaga kerja",
-      "Breakdown per item pekerjaan",
-      "Transparansi harga penuh",
-    ],
-    bestFor: "Pemilik rumah yang ingin mengetahui estimasi biaya renovasi secara detail dan akurat",
-    image: "/services/Service4.jpg.jpeg",
-  },
-  {
-    id: "project-execution",
-    icon: Wrench,
-    title: "Project Execution",
-    description: "Pengerjaan pembangunan atau renovasi oleh tim tukang berpengalaman dengan pengawasan langsung agar hasil sesuai rencana.",
-    duration: "Sesuai skala proyek",
-    features: [
-      "Tim tukang berpengalaman",
-      "Pengawasan langsung harian",
-      "Update progress berkala",
-      "Quality control ketat",
-    ],
-    bestFor: "Klien yang mengutamakan kualitas pengerjaan dan hasil sesuai rencana",
-    image: "/services/Service5.jpg.jpeg",
-  },
-];
+import { db } from "@/lib/db";
+import { services as servicesTable, serviceComparisonFeatures } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 
-const comparisonData = [
-  {
-    feature: "Konsultasi & Survey",
-    renovation: true,
-    visualization: true,
-    consultation: true,
-    estimation: true,
-    execution: false,
-  },
-  {
-    feature: "Desain 3D & Layout",
-    renovation: false,
-    visualization: true,
-    consultation: false,
-    estimation: false,
-    execution: false,
-  },
-  {
-    feature: "Estimasi Biaya (RAB)",
-    renovation: true,
-    visualization: false,
-    consultation: false,
-    estimation: true,
-    execution: false,
-  },
-  {
-    feature: "Pengerjaan Renovasi",
-    renovation: true,
-    visualization: false,
-    consultation: false,
-    estimation: false,
-    execution: true,
-  },
-  {
-    feature: "Pengawasan Proyek",
-    renovation: true,
-    visualization: false,
-    consultation: false,
-    estimation: false,
-    execution: true,
-  },
-];
+// Icon mapping helper
+const getIconComponent = (iconName: string) => {
+  const icons: Record<string, any> = {
+    Home,
+    Eye,
+    MessageSquare,
+    Calculator,
+    Wrench,
+    Package: LucideIcons.Package,
+  };
+  return icons[iconName] || Home;
+}
+
+// Fetch services directly from database
+async function getServices() {
+  try {
+    const services = await db
+      .select()
+      .from(servicesTable)
+      .where(eq(servicesTable.isActive, true))
+      .orderBy(servicesTable.order);
+    
+    return services;
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    return [];
+  }
+}
+
+// Fetch comparison data directly from database
+async function getComparisonData() {
+  try {
+    const features = await db
+      .select()
+      .from(serviceComparisonFeatures)
+      .orderBy(serviceComparisonFeatures.order);
+    
+    return features;
+  } catch (error) {
+    console.error('Error fetching comparison data:', error);
+    return [];
+  }
+}
 
 const serviceArea = [
   "Jakarta",
@@ -196,7 +124,10 @@ const workSteps = [
   },
 ];
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const services = await getServices();
+  const comparisonData = await getComparisonData();
+
   return (
     <div className="min-h-screen bg-background">
       
@@ -211,19 +142,21 @@ export default function ServicesPage() {
           </div>
 
           <div className="space-y-16">
-            {services.map((service, index) => {
-              const Icon = service.icon;
+            {services.map((service: any, index: number) => {
+              const Icon = getIconComponent(service.icon);
               const isEven = index % 2 === 0;
               
               return (
                 <div key={service.id} className={`grid lg:grid-cols-2 gap-12 items-center ${isEven ? '' : 'lg:flex-row-reverse'}`}>
                   <div className={`relative ${!isEven ? 'lg:order-2' : ''}`}>
-                    <div className="aspect-4/3 rounded-2xl overflow-hidden shadow-xl">
+                    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
                       <Image
                         src={service.image}
                         alt={service.title}
                         fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 600px"
                         className="object-cover"
+                        priority={index === 0}
                       />
                     </div>
                     <div className="absolute -bottom-6 -right-6 w-2/3 h-2/3 bg-[var(--color-secondary)]/10 rounded-2xl -z-10 hidden lg:block"></div>
@@ -255,7 +188,7 @@ export default function ServicesPage() {
                     <div>
                       <h4 className="font-semibold text-secondary mb-3">Yang termasuk dalam layanan:</h4>
                       <div className="grid sm:grid-cols-2 gap-3">
-                        {service.features.map((feature, idx) => (
+                        {service.features.map((feature: string, idx: number) => (
                           <div key={idx} className="flex items-start gap-2">
                             <CheckCircle className="h-5 w-5 text-[var(--color-secondary)] flex-shrink-0 mt-0.5" />
                             <span className="text-muted-foreground text-sm">{feature}</span>
@@ -322,7 +255,7 @@ export default function ServicesPage() {
                 </tr>
               </thead>
               <tbody>
-                {comparisonData.map((row, index) => (
+                {comparisonData.map((row: any, index: number) => (
                   <tr key={index} className="border-b border-border hover:bg-muted/50 transition-colors">
                     <td className="p-6 text-foreground font-medium">{row.feature}</td>
                     <td className="text-center p-6">

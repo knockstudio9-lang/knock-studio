@@ -1,4 +1,4 @@
-// app/dashboard/admin/services/page.tsx
+// app/(dashboard)/dashboard/admin/services/page.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -13,10 +13,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Eye, EyeOff, Loader2 } from "lucide-react";
-import { ServiceDialog } from "@/components/dashboard/ServiceDialog";
-import { ComparisonDialog } from "@/components/dashboard/ComparisonDialog";
-import { toast } from "sonner"; // Import from sonner instead of useToast
+import { toast } from "sonner";
 import Image from "next/image";
+import Link from "next/link";
 
 interface Service {
   id: number;
@@ -35,29 +34,12 @@ interface Service {
   updatedAt: Date;
 }
 
-interface ComparisonFeature {
-  id: number;
-  feature: string;
-  renovation: boolean;
-  visualization: boolean;
-  consultation: boolean;
-  estimation: boolean;
-  execution: boolean;
-  order: number;
-}
-
-export default function ServicesManagementPage() {
+export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
-  const [comparisonFeatures, setComparisonFeatures] = useState<ComparisonFeature[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [selectedComparison, setSelectedComparison] = useState<ComparisonFeature | null>(null);
-  const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
-  const [isComparisonDialogOpen, setIsComparisonDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchServices();
-    fetchComparisonFeatures();
   }, []);
 
   const fetchServices = async () => {
@@ -70,17 +52,6 @@ export default function ServicesManagementPage() {
       toast.error("Failed to fetch services");
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const fetchComparisonFeatures = async () => {
-    try {
-      const response = await fetch("/api/admin/services/comparison");
-      if (!response.ok) throw new Error("Failed to fetch comparison features");
-      const data = await response.json();
-      setComparisonFeatures(data.data || []);
-    } catch (error) {
-      toast.error("Failed to fetch comparison features");
     }
   };
 
@@ -118,35 +89,6 @@ export default function ServicesManagementPage() {
     }
   };
 
-  const handleDeleteComparison = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this comparison feature?")) return;
-
-    try {
-      const response = await fetch(`/api/admin/services/comparison/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete comparison feature");
-
-      toast.success("Comparison feature deleted successfully");
-      fetchComparisonFeatures();
-    } catch (error) {
-      toast.error("Failed to delete comparison feature");
-    }
-  };
-
-  const handleServiceSuccess = () => {
-    fetchServices();
-    setIsServiceDialogOpen(false);
-    setSelectedService(null);
-  };
-
-  const handleComparisonSuccess = () => {
-    fetchComparisonFeatures();
-    setIsComparisonDialogOpen(false);
-    setSelectedComparison(null);
-  };
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -162,9 +104,15 @@ export default function ServicesManagementPage() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">Services Management</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your services and comparison features
+            Manage your service offerings
           </p>
         </div>
+        <Link href="/dashboard/admin/services/new">
+          <Button className="text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Service
+          </Button>
+        </Link>
       </div>
 
       {/* Services Section */}
@@ -175,16 +123,6 @@ export default function ServicesManagementPage() {
               <CardTitle>Services</CardTitle>
               <CardDescription>Manage your service offerings</CardDescription>
             </div>
-            <Button
-              onClick={() => {
-                setSelectedService(null);
-                setIsServiceDialogOpen(true);
-              }}
-              className="text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Service
-            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -246,16 +184,11 @@ export default function ServicesManagementPage() {
                             <Eye className="h-4 w-4" />
                           )}
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedService(service);
-                            setIsServiceDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                        <Link href={`/dashboard/admin/services/${service.id}/edit`}>
+                          <Button variant="ghost" size="sm">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button
                           variant="ghost"
                           size="sm"
@@ -272,109 +205,6 @@ export default function ServicesManagementPage() {
           </Table>
         </CardContent>
       </Card>
-
-      {/* Comparison Features Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Comparison Features</CardTitle>
-              <CardDescription>Manage service comparison matrix</CardDescription>
-            </div>
-            <Button
-              onClick={() => {
-                setSelectedComparison(null);
-                setIsComparisonDialogOpen(true);
-              }}
-              className="text-white"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Feature
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Feature</TableHead>
-                <TableHead className="text-center">Renovation</TableHead>
-                <TableHead className="text-center">Visualization</TableHead>
-                <TableHead className="text-center">Consultation</TableHead>
-                <TableHead className="text-center">Estimation</TableHead>
-                <TableHead className="text-center">Execution</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {comparisonFeatures.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground">
-                    No comparison features found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                comparisonFeatures.map((feature) => (
-                  <TableRow key={feature.id}>
-                    <TableCell className="font-medium">{feature.feature}</TableCell>
-                    <TableCell className="text-center">
-                      {feature.renovation ? "✓" : "✗"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {feature.visualization ? "✓" : "✗"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {feature.consultation ? "✓" : "✗"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {feature.estimation ? "✓" : "✗"}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {feature.execution ? "✓" : "✗"}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedComparison(feature);
-                            setIsComparisonDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteComparison(feature.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Dialogs */}
-      <ServiceDialog
-        open={isServiceDialogOpen}
-        onOpenChange={setIsServiceDialogOpen}
-        service={selectedService}
-        onSuccess={handleServiceSuccess}
-      />
-
-      <ComparisonDialog
-        open={isComparisonDialogOpen}
-        onOpenChange={setIsComparisonDialogOpen}
-        feature={selectedComparison}
-        onSuccess={handleComparisonSuccess}
-      />
     </div>
   );
 }
