@@ -32,6 +32,7 @@ export default function EditAboutValuePage({
   
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [originalData, setOriginalData] = useState<typeof formData | null>(null);
   const [formData, setFormData] = useState({
     icon: "",
     title: "",
@@ -45,6 +46,8 @@ export default function EditAboutValuePage({
   }, [id]);
 
   const fetchValue = async () => {
+    const loadingToast = toast.loading("Loading value details...");
+    
     try {
       const response = await fetch(`/api/admin/about/values/${id}`);
       
@@ -58,17 +61,28 @@ export default function EditAboutValuePage({
         throw new Error(data.error || "Failed to fetch value");
       }
 
-      setFormData({
+      const valueData = {
         icon: data.data.icon,
         title: data.data.title,
         description: data.data.description,
         order: data.data.order,
         isActive: data.data.isActive,
-      });
+      };
+
+      setFormData(valueData);
+      setOriginalData(valueData);
+      
+      toast.success("Value loaded successfully", { id: loadingToast });
     } catch (error) {
       console.error("Fetch error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to fetch value");
-      router.push("/dashboard/admin/about");
+      toast.error(error instanceof Error ? error.message : "Failed to fetch value", { 
+        id: loadingToast 
+      });
+      
+      // Redirect after error with delay
+      setTimeout(() => {
+        router.push("/dashboard/admin/about");
+      }, 1500);
     } finally {
       setIsLoading(false);
     }
@@ -84,10 +98,22 @@ export default function EditAboutValuePage({
 
   const handleSwitchChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, isActive: checked }));
+    toast.info(`Value will be ${checked ? "active" : "inactive"}`);
+  };
+
+  const hasChanges = () => {
+    if (!originalData) return false;
+    return JSON.stringify(formData) !== JSON.stringify(originalData);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if there are any changes
+    if (!hasChanges()) {
+      toast.info("No changes to save");
+      return;
+    }
     
     // Validation
     if (!formData.icon.trim()) {
@@ -104,6 +130,7 @@ export default function EditAboutValuePage({
     }
 
     setIsSubmitting(true);
+    const updatingToast = toast.loading("Updating value...");
 
     try {
       const response = await fetch(`/api/admin/about/values/${id}`, {
@@ -118,14 +145,32 @@ export default function EditAboutValuePage({
         throw new Error(data.error || "Failed to update value");
       }
 
-      toast.success("Value updated successfully");
-      router.push("/dashboard/admin/about");
-      router.refresh();
+      toast.success("Value updated successfully! Redirecting...", { 
+        id: updatingToast 
+      });
+      
+      // Small delay to show the success message before navigation
+      setTimeout(() => {
+        router.push("/dashboard/admin/about");
+        router.refresh();
+      }, 500);
     } catch (error) {
       console.error("Update error:", error);
-      toast.error(error instanceof Error ? error.message : "Failed to update value");
-    } finally {
+      toast.error(error instanceof Error ? error.message : "Failed to update value", { 
+        id: updatingToast 
+      });
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (hasChanges()) {
+      if (confirm("You have unsaved changes. Are you sure you want to cancel?")) {
+        toast.info("Changes discarded");
+        router.push("/dashboard/admin/about");
+      }
+    } else {
+      router.push("/dashboard/admin/about");
     }
   };
 
@@ -142,7 +187,7 @@ export default function EditAboutValuePage({
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/dashboard/admin/about">
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" title="Back to About Page">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
@@ -240,12 +285,19 @@ export default function EditAboutValuePage({
             </div>
             
             <div className="flex justify-end gap-3 pt-4 border-t">
-              <Link href="/dashboard/admin/about">
-                <Button variant="outline" type="button" disabled={isSubmitting}>
-                  Cancel
-                </Button>
-              </Link>
-              <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
+              <Button 
+                type="button"
+                variant="outline" 
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isSubmitting || !hasChanges()} 
+                className="min-w-[140px]"
+              >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

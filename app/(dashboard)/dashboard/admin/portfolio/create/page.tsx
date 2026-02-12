@@ -15,9 +15,9 @@ import { ArrowLeft, Save } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import ImageUpload from '@/components/admin/ImageUpload';
-import MultiImageUpload from '@/components/admin/MultiImageUpload';
-import type { ImageData } from '@/components/admin/MultiImageUpload';
+import ImageUpload from '@/components/dashboard/admin/ImageUpload';
+import MultiImageUpload from '@/components/dashboard/admin/MultiImageUpload';
+import type { ImageData } from '@/components/dashboard/admin/MultiImageUpload';
 
 export default function CreateProjectPage() {
   const router = useRouter();

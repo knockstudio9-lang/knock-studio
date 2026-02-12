@@ -21,8 +21,8 @@ const db = drizzle(pool);
 const sampleUsers = [
   {
     name: "Admin User",
-    email: "admin@example.com",
-    password: "admin123", // This will be hashed
+    email: "knockpresents@gmail.com",
+    password: "knock12062026", // This will be hashed
     role: "admin",
   },
   {

@@ -31,11 +31,28 @@ export default function NewAboutValuePage() {
 
   const handleSwitchChange = (checked: boolean) => {
     setFormData((prev) => ({ ...prev, isActive: checked }));
+    toast.info(`Value will be ${checked ? "active" : "inactive"}`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validation
+    if (!formData.icon.trim()) {
+      toast.error("Icon is required");
+      return;
+    }
+    if (!formData.title.trim()) {
+      toast.error("Title is required");
+      return;
+    }
+    if (!formData.description.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+
     setIsSubmitting(true);
+    const creatingToast = toast.loading("Creating value...");
 
     try {
       const response = await fetch("/api/admin/about/values", {
@@ -44,14 +61,37 @@ export default function NewAboutValuePage() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error("Failed to create value");
+      const data = await response.json();
 
-      toast.success("Value created successfully");
-      router.push("/dashboard/admin/about");
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to create value");
+      }
+
+      toast.success("Value created successfully! Redirecting...", { 
+        id: creatingToast 
+      });
+      
+      // Small delay to show the success message before navigation
+      setTimeout(() => {
+        router.push("/dashboard/admin/about");
+      }, 500);
     } catch (error) {
-      toast.error("Failed to create value");
-    } finally {
+      console.error("Create error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to create value", { 
+        id: creatingToast 
+      });
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCancel = () => {
+    if (formData.icon || formData.title || formData.description) {
+      if (confirm("You have unsaved changes. Are you sure you want to cancel?")) {
+        toast.info("Changes discarded");
+        router.push("/dashboard/admin/about");
+      }
+    } else {
+      router.push("/dashboard/admin/about");
     }
   };
 
@@ -60,7 +100,7 @@ export default function NewAboutValuePage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/dashboard/admin/about">
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" title="Back to About Page">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
@@ -84,7 +124,9 @@ export default function NewAboutValuePage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="icon">Icon Name</Label>
+                <Label htmlFor="icon">
+                  Icon Name <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="icon"
                   name="icon"
@@ -93,9 +135,14 @@ export default function NewAboutValuePage() {
                   placeholder="e.g., Heart, Shield, Zap"
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Use a valid Lucide React icon name
+                </p>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title">
+                  Title <span className="text-destructive">*</span>
+                </Label>
                 <Input
                   id="title"
                   name="title"
@@ -106,8 +153,11 @@ export default function NewAboutValuePage() {
                 />
               </div>
             </div>
+            
             <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="description">
+                Description <span className="text-destructive">*</span>
+              </Label>
               <Textarea
                 id="description"
                 name="description"
@@ -118,9 +168,10 @@ export default function NewAboutValuePage() {
                 required
               />
             </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="order">Order</Label>
+                <Label htmlFor="order">Display Order</Label>
                 <Input
                   id="order"
                   name="order"
@@ -128,27 +179,37 @@ export default function NewAboutValuePage() {
                   value={formData.order}
                   onChange={handleChange}
                   min="0"
+                  placeholder="0"
                 />
+                <p className="text-xs text-muted-foreground">
+                  Lower numbers appear first
+                </p>
               </div>
-              <div className="flex items-center space-x-2 pt-6">
+              <div className="flex items-center space-x-2 pt-8">
                 <Switch
                   id="isActive"
                   checked={formData.isActive}
                   onCheckedChange={handleSwitchChange}
                 />
-                <Label htmlFor="isActive">Active</Label>
+                <Label htmlFor="isActive" className="cursor-pointer">
+                  Active Status
+                </Label>
               </div>
             </div>
-            <div className="flex justify-end gap-2 pt-4">
-              <Link href="/dashboard/admin/about">
-                <Button variant="outline" disabled={isSubmitting}>
-                  Cancel
-                </Button>
-              </Link>
-              <Button type="submit" disabled={isSubmitting}>
+            
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={handleCancel}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="min-w-[140px]">
                 {isSubmitting ? (
                   <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></div>
                     Creating...
                   </>
                 ) : (

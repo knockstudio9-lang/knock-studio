@@ -53,6 +53,8 @@ export default function AboutPage() {
   }, []);
 
   const fetchData = async () => {
+    const loadingToast = toast.loading("Loading data...");
+    
     try {
       const [valuesResponse, teamResponse] = await Promise.all([
         fetch("/api/admin/about/values"),
@@ -67,16 +69,23 @@ export default function AboutPage() {
 
       setAboutValues(valuesData.data || []);
       setTeamMembers(teamData.data || []);
+      
+      toast.success("Data loaded successfully", { id: loadingToast });
     } catch (error) {
       console.error("Fetch error:", error);
-      toast.error("Failed to fetch data");
+      toast.error("Failed to fetch data", { id: loadingToast });
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleDeleteValue = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this value?")) return;
+    if (!confirm("Are you sure you want to delete this value?")) {
+      toast.info("Delete cancelled");
+      return;
+    }
+
+    const deletingToast = toast.loading("Deleting value...");
 
     try {
       const response = await fetch(`/api/admin/about/values/${id}`, {
@@ -89,15 +98,20 @@ export default function AboutPage() {
         throw new Error(data.error || "Failed to delete value");
       }
 
-      toast.success("Value deleted successfully");
+      toast.success("Value deleted successfully", { id: deletingToast });
       fetchData();
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete value");
+      toast.error(error instanceof Error ? error.message : "Failed to delete value", { 
+        id: deletingToast 
+      });
     }
   };
 
   const handleToggleValueActive = async (value: AboutValue) => {
+    const action = !value.isActive ? "Activating" : "Deactivating";
+    const toastId = toast.loading(`${action} value...`);
+
     try {
       const response = await fetch(`/api/admin/about/values/${value.id}`, {
         method: "PATCH",
@@ -111,16 +125,25 @@ export default function AboutPage() {
         throw new Error(data.error || "Failed to update value");
       }
 
-      toast.success(`Value ${!value.isActive ? "activated" : "deactivated"}`);
+      toast.success(`Value ${!value.isActive ? "activated" : "deactivated"} successfully`, { 
+        id: toastId 
+      });
       fetchData();
     } catch (error) {
       console.error("Update error:", error);
-      toast.error("Failed to update value");
+      toast.error(error instanceof Error ? error.message : "Failed to update value", { 
+        id: toastId 
+      });
     }
   };
 
   const handleDeleteTeamMember = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this team member?")) return;
+    if (!confirm("Are you sure you want to delete this team member?")) {
+      toast.info("Delete cancelled");
+      return;
+    }
+
+    const deletingToast = toast.loading("Deleting team member...");
 
     try {
       const response = await fetch(`/api/admin/about/team/${id}`, {
@@ -133,15 +156,20 @@ export default function AboutPage() {
         throw new Error(data.error || "Failed to delete team member");
       }
 
-      toast.success("Team member deleted successfully");
+      toast.success("Team member deleted successfully", { id: deletingToast });
       fetchData();
     } catch (error) {
       console.error("Delete error:", error);
-      toast.error("Failed to delete team member");
+      toast.error(error instanceof Error ? error.message : "Failed to delete team member", { 
+        id: deletingToast 
+      });
     }
   };
 
   const handleToggleTeamMemberActive = async (member: TeamMember) => {
+    const action = !member.isActive ? "Activating" : "Deactivating";
+    const toastId = toast.loading(`${action} team member...`);
+
     try {
       const response = await fetch(`/api/admin/about/team/${member.id}`, {
         method: "PATCH",
@@ -155,11 +183,15 @@ export default function AboutPage() {
         throw new Error(data.error || "Failed to update team member");
       }
 
-      toast.success(`Team member ${!member.isActive ? "activated" : "deactivated"}`);
+      toast.success(`Team member ${!member.isActive ? "activated" : "deactivated"} successfully`, { 
+        id: toastId 
+      });
       fetchData();
     } catch (error) {
       console.error("Update error:", error);
-      toast.error("Failed to update team member");
+      toast.error(error instanceof Error ? error.message : "Failed to update team member", { 
+        id: toastId 
+      });
     }
   };
 
@@ -258,6 +290,7 @@ export default function AboutPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleToggleValueActive(value)}
+                              title={value.isActive ? "Deactivate" : "Activate"}
                             >
                               {value.isActive ? (
                                 <EyeOff className="h-4 w-4" />
@@ -266,7 +299,7 @@ export default function AboutPage() {
                               )}
                             </Button>
                             <Link href={`/dashboard/admin/about/values/${value.id}/edit`}>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" title="Edit">
                                 <Edit className="h-4 w-4" />
                               </Button>
                             </Link>
@@ -274,6 +307,7 @@ export default function AboutPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteValue(value.id)}
+                              title="Delete"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
@@ -327,7 +361,6 @@ export default function AboutPage() {
                   ) : (
                     teamMembers.map((member) => (
                       <TableRow key={member.id}>
-                        {/* --- THIS IS THE FIXED PART --- */}
                         <TableCell>
                           {member.image && (
                             <div className="relative w-16 h-16 rounded-md overflow-hidden">
@@ -340,7 +373,6 @@ export default function AboutPage() {
                             </div>
                           )}
                         </TableCell>
-                        {/* --- END OF FIXED PART --- */}
                         <TableCell className="font-medium">
                           {member.name}
                           {member.isFounder && (
@@ -356,7 +388,7 @@ export default function AboutPage() {
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                               member.isActive
                                 ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
-                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300"
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-800 dark:text-gray-300"
                             }`}
                           >
                             {member.isActive ? "Active" : "Inactive"}
@@ -368,6 +400,7 @@ export default function AboutPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleToggleTeamMemberActive(member)}
+                              title={member.isActive ? "Deactivate" : "Activate"}
                             >
                               {member.isActive ? (
                                 <EyeOff className="h-4 w-4" />
@@ -376,7 +409,7 @@ export default function AboutPage() {
                               )}
                             </Button>
                             <Link href={`/dashboard/admin/about/team/${member.id}/edit`}>
-                              <Button variant="ghost" size="sm">
+                              <Button variant="ghost" size="sm" title="Edit">
                                 <Edit className="h-4 w-4" />
                               </Button>
                             </Link>
@@ -384,6 +417,7 @@ export default function AboutPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleDeleteTeamMember(member.id)}
+                              title="Delete"
                             >
                               <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>

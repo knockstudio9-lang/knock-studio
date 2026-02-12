@@ -109,7 +109,7 @@ const BeforeAfterAnimation = ({
   }, []);
 
   // Handle case where beforeSrc is empty
-  if (!beforeSrc) {
+  if (!beforeSrc || beforeSrc.trim() === '') {
     return (
       <div className={`relative overflow-hidden ${className}`}>
         <div className="absolute inset-0">
@@ -363,11 +363,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     fetchProject();
   }, [resolvedParams.id]);
 
+  // Helper function to check if beforeImage exists and is not empty
+  const hasBeforeImage = (project: Project) => {
+    return project.beforeImage && project.beforeImage.trim() !== '';
+  };
+
   // Prepare all images for gallery
   const allImages = project ? [
     { type: 'after', src: project.afterImage, label: 'After' },
-    ...(project.beforeImage ? [{ type: 'before', src: project.beforeImage, label: 'Before' }] : []),
-    ...(project.beforeImage ? [{ type: 'before-after', src: '', label: 'Before & After Transformation' }] : []),
+    ...(hasBeforeImage(project) ? [{ type: 'before', src: project.beforeImage, label: 'Before' }] : []),
+    ...(hasBeforeImage(project) ? [{ type: 'before-after', src: '', label: 'Before & After Transformation' }] : []),
     ...project.galleryImages.map((img, idx) => ({ 
       type: 'gallery', 
       src: img, 
@@ -537,7 +542,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           {/* After Image */}
-          {/* <motion.div
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
@@ -554,10 +559,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1.5 text-sm rounded-md backdrop-blur-sm">
               After
             </div>
-          </motion.div> */}
+          </motion.div>
 
           {/* Before Image - Only show if beforeImage exists */}
-          {/* {project.beforeImage && (
+          {hasBeforeImage(project) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -577,10 +582,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 Before
               </div>
             </motion.div>
-          )} */}
+          )}
 
           {/* Before/After Animation - Full Width - Only show if beforeImage exists */}
-          {/* {project.beforeImage && (
+          {hasBeforeImage(project) && (
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -596,31 +601,36 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 pointer-events-none" />
             </motion.div>
-          )} */}
+          )}
 
           {/* Gallery Images */}
-          {project.galleryImages.map((img, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 * (index + 3) }}
-              className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer group"
-              onClick={() => openGallery((project.beforeImage ? 3 : 1) + index)}
-            >
-              <Image
-                src={img}
-                alt={`Gallery ${index + 1}`}
-                fill
-                className="object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-              <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1.5 text-sm rounded-md backdrop-blur-sm">
-                Gallery {index + 1}
-              </div>
-            </motion.div>
-          ))}
+          {project.galleryImages.map((img, index) => {
+            // Calculate the correct index for opening the gallery
+            const galleryIndex = hasBeforeImage(project) ? 3 + index : 1 + index;
+            
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 * (index + 3) }}
+                className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer group"
+                onClick={() => openGallery(galleryIndex)}
+              >
+                <Image
+                  src={img}
+                  alt={`Gallery ${index + 1}`}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1.5 text-sm rounded-md backdrop-blur-sm">
+                  Gallery {index + 1}
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 

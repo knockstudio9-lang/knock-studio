@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1770696649847,
-      "tag": "0000_cloudy_rhodey",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1770728193757,
-      "tag": "0001_bizarre_tomorrow_man",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1770874441789,
-      "tag": "0002_keen_goblin_queen",
+      "when": 1770893333924,
+      "tag": "0000_dizzy_purifiers",
       "breakpoints": true
     }
   ]
