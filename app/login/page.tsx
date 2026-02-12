@@ -157,7 +157,7 @@ export default function LoginPage() {
         </div>
 
         {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-muted/50 rounded-[var(--radius-lg)] border border-border">
+        {/* <div className="mt-6 p-4 bg-muted/50 rounded-[var(--radius-lg)] border border-border">
           <p className="text-xs font-semibold text-foreground mb-2">
             Demo Credentials:
           </p>
@@ -169,7 +169,7 @@ export default function LoginPage() {
               <strong className="text-foreground">User:</strong> user@example.com / user123
             </p>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

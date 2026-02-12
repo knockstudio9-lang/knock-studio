@@ -474,9 +474,32 @@ export default function PortfolioPage() {
                     animate={{ opacity: 0.7 }}
                     transition={{ delay: 0.18, duration: 0.3 }}
                   >
-                    Selesai
+                    status
                   </motion.div>
                   <div className="text-lg md:text-2xl font-semibold">{selectedProject.completion}</div>
+                </motion.div>
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {/* Year - Below Completion */}
+                <motion.div 
+                  key={`year-${selectedProject.id}`}
+                  className="absolute top-1/3 mt-20 md:mt-24 right-8 md:right-28 text-right"
+                  variants={slideFromRight}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  style={getAnimationStyle(0.2, 'right')}
+                >
+                  <motion.div 
+                    className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.7 }}
+                    transition={{ delay: 0.22, duration: 0.3 }}
+                  >
+                    Tahun
+                  </motion.div>
+                  <div className="text-lg md:text-2xl font-semibold">{selectedProject.year}</div>
                 </motion.div>
               </AnimatePresence>
 
@@ -484,7 +507,7 @@ export default function PortfolioPage() {
                 {/* Location - Lower Left */}
                 <motion.div 
                   key={`location-${selectedProject.id}`}
-                  className="absolute bottom-68 md:bottom-72 left-12 md:left-28"
+                  className="absolute bottom-68 md:bottom-50 left-12 md:left-10"
                   variants={slideFromLeft}
                   initial="initial"
                   animate="animate"

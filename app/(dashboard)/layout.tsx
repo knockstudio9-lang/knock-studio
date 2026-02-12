@@ -6,6 +6,7 @@ import { Header } from "@/components/dashboard/Header";
 import { useSession } from "@/components/providers/SessionProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Toaster } from "sonner";
 
 export default function AdminDashboardLayout({
   children,
@@ -45,6 +46,7 @@ export default function AdminDashboardLayout({
           {children}
         </main>
       </div>
+      <Toaster position="top-right" richColors />
     </div>
   );
 }

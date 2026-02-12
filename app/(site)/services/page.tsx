@@ -127,42 +127,42 @@ export default async function ServicesPage() {
     <div className="min-h-screen bg-background">
       
       {/* Main Services Section */}
-      <section className="py-24 pt-32 bg-background">
+      <section className="py-16 pt-32 bg-background">
         <div className="container-custom">
-          <div className="mx-auto max-w-2xl text-center mb-20">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-secondary">Layanan Utama Kami</h2>
-            <p className="text-xl text-muted-foreground">
+          <div className="mx-auto max-w-2xl text-center mb-12">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-secondary">Layanan Utama Kami</h2>
+            <p className="text-lg text-muted-foreground">
               Solusi renovasi dan pembangunan rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
             </p>
           </div>
 
-          <div className="space-y-28">
+          <div className="space-y-16">
             {services.map((service: any, index: number) => {
               const Icon = getIconComponent(service.icon);
               const isEven = index % 2 === 0;
               
               return (
-                <div key={service.id} className={`grid lg:grid-cols-5 gap-16 items-start ${isEven ? '' : 'lg:flex-row-reverse'}`}>
-                  <div className={`lg:col-span-2 ${!isEven ? 'lg:order-2' : ''}`}>
-                    <div className="relative aspect-[3/4] overflow-hidden">
-                      <Image
-                        src={service.image}
-                        alt={service.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 500px"
-                        className="object-cover"
-                        priority={index === 0}
-                      />
-                    </div>
+                <div key={service.id} className="grid lg:grid-cols-2 gap-8 items-start">
+                  {/* Image in landscape mode */}
+                  <div className={`relative aspect-[16/9] overflow-hidden w-full ${!isEven ? 'lg:order-2' : ''}`}>
+                    <Image
+                      src={service.image}
+                      alt={service.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                      priority={index === 0}
+                    />
                   </div>
                   
-                  <div className={`lg:col-span-3 space-y-8 ${!isEven ? 'lg:order-1' : ''}`}>
-                    <div className="flex items-start gap-5">
-                      <div className="flex h-14 w-14 items-center justify-center bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] flex-shrink-0">
-                        <Icon className="h-7 w-7" />
+                  {/* Content beside image */}
+                  <div className={`space-y-3 ${!isEven ? 'lg:order-1' : ''}`}>
+                    <div className="flex items-start gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center bg-[var(--color-secondary)]/10 text-[var(--color-secondary)] flex-shrink-0">
+                        <Icon className="h-6 w-6" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-3xl font-bold text-secondary mb-2">{service.title}</h3>
+                        <h3 className="text-2xl font-bold text-secondary mb-1">{service.title}</h3>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <Clock className="h-4 w-4" />
                           <span>{service.duration}</span>
@@ -170,22 +170,22 @@ export default async function ServicesPage() {
                       </div>
                     </div>
                     
-                    <p className="text-lg text-muted-foreground leading-relaxed">
+                    <p className="text-base text-muted-foreground leading-relaxed">
                       {service.description}
                     </p>
                     
-                    <div className="bg-muted/30 p-7 border-l-4 border-[var(--color-secondary)]">
-                      <h4 className="font-semibold text-secondary mb-3 text-base">Cocok untuk:</h4>
-                      <p className="text-muted-foreground leading-relaxed">{service.bestFor}</p>
+                    <div className="bg-muted/30 p-4 border-l-4 border-[var(--color-secondary)]">
+                      <h4 className="font-semibold text-secondary mb-2 text-sm">Cocok untuk:</h4>
+                      <p className="text-muted-foreground text-sm leading-relaxed">{service.bestFor}</p>
                     </div>
                     
-                    <div className="pt-2">
-                      <h4 className="font-semibold text-secondary mb-5 text-base">Yang termasuk dalam layanan:</h4>
-                      <div className="space-y-3">
+                    <div>
+                      <h4 className="font-semibold text-secondary mb-3 text-sm">Yang termasuk dalam layanan:</h4>
+                      <div className="grid md:grid-cols-2 gap-x-4 gap-y-2">
                         {service.features.map((feature: string, idx: number) => (
-                          <div key={idx} className="flex items-start gap-3">
-                            <CheckCircle className="h-5 w-5 text-[var(--color-secondary)] flex-shrink-0 mt-0.5" />
-                            <span className="text-muted-foreground">{feature}</span>
+                          <div key={idx} className="flex items-start gap-2">
+                            <CheckCircle className="h-4 w-4 text-[var(--color-secondary)] flex-shrink-0 mt-0.5" />
+                            <span className="text-muted-foreground text-sm">{feature}</span>
                           </div>
                         ))}
                       </div>
@@ -197,7 +197,7 @@ export default async function ServicesPage() {
           </div>
 
           {/* Service Area */}
-          <div className="max-w-4xl mx-auto mt-32">
+          <div className="max-w-4xl mx-auto mt-16">
             <Card className="border border-[var(--color-secondary)]/20 bg-gradient-to-br from-[var(--color-secondary)]/5 to-background">
               <CardHeader className="text-center pb-6">
                 <div className="flex justify-center mb-6">
@@ -294,7 +294,7 @@ export default async function ServicesPage() {
         </div>
       </section>
 
-      {/* Work Steps Section - Improved Design */}
+      {/* Work Steps Section - Centered Content */}
       <section className="py-24 bg-background">
         <div className="container-custom">
           <div className="mx-auto max-w-2xl text-center mb-20">
@@ -321,8 +321,8 @@ export default async function ServicesPage() {
                       />
                     )}
                     
-                    <div className="relative z-10">
-                      <div className="mb-6">
+                    <div className="relative z-10 text-center">
+                      <div className="mb-6 flex flex-col items-center">
                         <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
                           <span className="text-2xl font-bold">{step.number}</span>
                         </div>
@@ -347,8 +347,8 @@ export default async function ServicesPage() {
                 const Icon = step.icon;
                 
                 return (
-                  <div key={index} className="relative">
-                    <div className="mb-6">
+                  <div key={index} className="relative text-center">
+                    <div className="mb-6 flex flex-col items-center">
                       <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
                         <span className="text-2xl font-bold">{step.number}</span>
                       </div>
@@ -366,35 +366,30 @@ export default async function ServicesPage() {
               })}
             </div>
             
-            {/* Mobile view - Single column with flow */}
+            {/* Mobile view - Single column with centered content */}
             <div className="md:hidden">
-              <div className="relative">
-                {/* Vertical connecting line */}
-                <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-[var(--color-secondary)]/20" />
-                
-                <div className="space-y-12">
-                  {workSteps.map((step, index) => {
-                    const Icon = step.icon;
-                    
-                    return (
-                      <div key={index} className="relative flex gap-6">
-                        <div className="flex-shrink-0 relative z-10">
-                          <div className="w-16 h-16 bg-[var(--color-secondary)] text-white flex items-center justify-center mb-3">
-                            <span className="text-xl font-bold">{step.number}</span>
-                          </div>
-                          <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center ml-2">
-                            <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
-                          </div>
+              <div className="space-y-12">
+                {workSteps.map((step, index) => {
+                  const Icon = step.icon;
+                  
+                  return (
+                    <div key={index} className="relative text-center">
+                      <div className="flex flex-col items-center mb-4">
+                        <div className="w-16 h-16 bg-[var(--color-secondary)] text-white flex items-center justify-center mb-3">
+                          <span className="text-xl font-bold">{step.number}</span>
                         </div>
-                        
-                        <div className="flex-1 pt-3 space-y-2">
-                          <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
-                          <p className="text-sm text-muted-foreground leading-relaxed">{step.subtitle}</p>
+                        <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                          <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
+                      
+                      <div className="space-y-2">
+                        <h3 className="text-base font-semibold text-foreground">{step.title}</h3>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{step.subtitle}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

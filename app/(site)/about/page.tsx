@@ -154,7 +154,7 @@ export default function AboutPage() {
 
           {/* Image on the right */}
           <div className="w-full lg:w-1/2 relative">
-            <div className="aspect-4/3 lg:aspect-square rounded-2xl overflow-hidden shadow-2xl relative">
+            <div className="aspect-4/3 lg:aspect-square overflow-hidden shadow-2xl relative">
               <Image
                 src="/about/aset1.png"
                 alt="Modern architecture"

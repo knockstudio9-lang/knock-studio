@@ -657,17 +657,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             viewport={{ once: true }}
           >
             <h3 className="text-2xl md:text-4xl font-bold mb-6">
-              Interested in a similar project?
+              Tertarik dengan proyek serupa?
             </h3>
             <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Let&apos;s discuss how we can transform your space into something extraordinary.
+              Mari diskusikan bagaimana kami dapat mengubah ruang Anda menjadi sesuatu yang luar biasa.
             </p>
-            <Button 
-              size="lg" 
-              className=""
-            >
-              Konsultasi dengan Kami
-            </Button>
+            <Link href="/schedule">
+              <Button 
+                size="lg" 
+                className=""
+              >
+                Konsultasi dengan Kami
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </section>
