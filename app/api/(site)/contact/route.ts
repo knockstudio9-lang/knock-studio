@@ -1,4 +1,4 @@
-// app/api/(site)/contact/route.ts
+// app/api/(site)/contact/route.ts - Updated to handle images
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/db/schema';
@@ -9,11 +9,19 @@ export async function POST(request: NextRequest) {
     const formData = await request.json();
     
     // Validate required fields - only name, address, and service are required now
-    const { name, address, service, area, budget, details } = formData;
+    const { name, address, service, area, budget, details, images, imagePublicIds } = formData;
     
     if (!name || !address || !service) {
       return NextResponse.json(
         { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
+    
+    // Validate images and publicIds match if provided
+    if (images && imagePublicIds && images.length !== imagePublicIds.length) {
+      return NextResponse.json(
+        { error: 'Images and publicIds arrays must have the same length' },
         { status: 400 }
       );
     }
@@ -26,6 +34,8 @@ export async function POST(request: NextRequest) {
       area: area || null,
       budget: budget || null,
       details: details || null,
+      images: images || [],
+      imagePublicIds: imagePublicIds || [],
     }).returning();
     
     // Format WhatsApp message
@@ -35,7 +45,8 @@ export async function POST(request: NextRequest) {
       service,
       area: area || '',
       budget: budget || '',
-      details: details || ''
+      details: details || '',
+      images: images || []
     });
     
     // Get WhatsApp number from environment variables

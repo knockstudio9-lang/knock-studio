@@ -1,8 +1,8 @@
-// app/(site)/schedule/page.tsx
+// app/(site)/schedule/page.tsx - Updated with image upload
 "use client";
 
 import { useState } from "react";
-import { User, MapPin, Home, Check, FileText } from "lucide-react";
+import { User, MapPin, Home, Check, FileText, Upload, X, Image as ImageIcon } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -27,6 +27,12 @@ const parseRupiah = (value: string): string => {
   return value.replace(/\D/g, "");
 };
 
+interface UploadedImage {
+  url: string;
+  publicId: string;
+  thumbnail: string;
+}
+
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -37,6 +43,9 @@ export default function ContactPage() {
     details: ""
   });
   const [displayBudget, setDisplayBudget] = useState("");
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,18 +58,83 @@ export default function ContactPage() {
     setDisplayBudget(formatRupiah(rawValue));
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    // Check if adding these files would exceed the limit
+    if (uploadedImages.length + files.length > 5) {
+      setUploadError('Maksimal 5 foto dapat diunggah');
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach(file => {
+        formData.append('files', file);
+      });
+      formData.append('folder', 'contact-submissions');
+
+      const response = await fetch('/api/upload-contact-images', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Gagal mengunggah gambar');
+      }
+
+      setUploadedImages(prev => [...prev, ...data.images]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunggah gambar');
+    } finally {
+      setIsUploading(false);
+      // Reset input
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveImage = async (publicId: string) => {
+    try {
+      const response = await fetch('/api/upload-contact-images', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ publicIds: [publicId] }),
+      });
+
+      if (response.ok) {
+        setUploadedImages(prev => prev.filter(img => img.publicId !== publicId));
+      }
+    } catch (err) {
+      console.error('Error removing image:', err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     
     try {
+      const submissionData = {
+        ...formData,
+        images: uploadedImages.map(img => img.url),
+        imagePublicIds: uploadedImages.map(img => img.publicId),
+      };
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submissionData),
       });
       
       const data = await response.json();
@@ -91,8 +165,10 @@ export default function ContactPage() {
       details: ""
     });
     setDisplayBudget("");
+    setUploadedImages([]);
     setIsSubmitted(false);
     setError(null);
+    setUploadError(null);
   };
 
   return (
@@ -213,7 +289,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    Masukkan luas area dalam meter persegi (m²) - Opsional, bisa diisi nanti
+                    Masukkan luas area dalam m²  (opsional)
                   </p>
                 </div>
 
@@ -236,7 +312,7 @@ export default function ContactPage() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    Berikan perkiraan anggaran untuk proyek Anda - Opsional, bisa diisi nanti
+                    Perkiraan anggaran proyek (opsional)
                   </p>
                 </div>
 
@@ -256,6 +332,77 @@ export default function ContactPage() {
                       placeholder="Berikan informasi tambahan tentang proyek Anda (opsional)"
                     />
                   </div>
+                </div>
+
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-card-foreground">
+                    Unggah Foto Properti
+                  </label>
+                  
+                  {/* Upload Button */}
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      multiple
+                      onChange={handleImageUpload}
+                      disabled={isUploading || uploadedImages.length >= 5}
+                      className="hidden"
+                      id="image-upload"
+                    />
+                    <label
+                      htmlFor="image-upload"
+                      className={`flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-border bg-background text-muted-foreground hover:border-ring hover:text-ring transition-all cursor-pointer text-sm ${
+                        (isUploading || uploadedImages.length >= 5) ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
+                    >
+                      {isUploading ? (
+                        <>
+                          <Upload className="h-4 w-4 mr-2 animate-spin" />
+                          Mengunggah...
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="h-4 w-4 mr-2" />
+                          {uploadedImages.length >= 5 
+                            ? 'Maksimal 5 foto tercapai' 
+                            : `Pilih Foto (${uploadedImages.length}/5)`}
+                        </>
+                      )}
+                    </label>
+                  </div>
+
+                  {uploadError && (
+                    <p className="text-xs text-red-500 mt-1.5">{uploadError}</p>
+                  )}
+
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Unggah foto lokasi atau inspirasi proyek Anda (optional) <br />
+                    maksimal 5 foto, 5MB per foto
+                  </p>
+
+                  {/* Image Preview Grid */}
+                  {uploadedImages.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+                      {uploadedImages.map((image, index) => (
+                        <div key={index} className="relative group aspect-square">
+                          <img
+                            src={image.thumbnail}
+                            alt={`Upload ${index + 1}`}
+                            className="w-full h-full object-cover border border-border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(image.publicId)}
+                            className="absolute top-2 right-2 p-1.5 bg-red-500 text-white hover:bg-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Submit Button */}

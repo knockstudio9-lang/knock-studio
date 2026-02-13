@@ -114,8 +114,8 @@ const workSteps = [
   {
     number: "06",
     icon: Check,
-    title: "Serah Terima Bangunan",
-    subtitle: "Building Handover",
+    title: "Building Handover",
+    subtitle: "Serah Terima Bangunan",
   },
 ];
 
@@ -130,7 +130,7 @@ export default async function ServicesPage() {
       <section className="py-16 pt-32 bg-background">
         <div className="container-custom">
           <div className="mx-auto max-w-2xl text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-secondary">Layanan Utama Kami</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-secondary">Our Services</h2>
             <p className="text-lg text-muted-foreground">
               Solusi renovasi dan pembangunan rumah yang komprehensif dan disesuaikan dengan kebutuhan Anda
             </p>
@@ -323,11 +323,14 @@ export default async function ServicesPage() {
                     
                     <div className="relative z-10 text-center">
                       <div className="mb-6 flex flex-col items-center">
-                        <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
-                          <span className="text-2xl font-bold">{step.number}</span>
-                        </div>
-                        <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
-                          <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                        {/* Icon container with number badge in top-left */}
+                        <div className="relative w-24 h-24 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                          {/* Number badge positioned at top-left */}
+                          <div className="absolute -top-3 -left-3 w-10 h-10 bg-[var(--color-secondary)] text-white flex items-center justify-center">
+                            <span className="text-lg font-bold">{step.number}</span>
+                          </div>
+                          {/* Icon */}
+                          <Icon className="h-10 w-10 text-[var(--color-secondary)]" />
                         </div>
                       </div>
                       
@@ -349,11 +352,14 @@ export default async function ServicesPage() {
                 return (
                   <div key={index} className="relative text-center">
                     <div className="mb-6 flex flex-col items-center">
-                      <div className="inline-flex items-center justify-center w-16 h-16 bg-[var(--color-secondary)] text-white mb-4">
-                        <span className="text-2xl font-bold">{step.number}</span>
-                      </div>
-                      <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
-                        <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                      {/* Icon container with number badge in top-left */}
+                      <div className="relative w-24 h-24 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                        {/* Number badge positioned at top-left */}
+                        <div className="absolute -top-3 -left-3 w-10 h-10 bg-[var(--color-secondary)] text-white flex items-center justify-center">
+                          <span className="text-lg font-bold">{step.number}</span>
+                        </div>
+                        {/* Icon */}
+                        <Icon className="h-10 w-10 text-[var(--color-secondary)]" />
                       </div>
                     </div>
                     
@@ -375,11 +381,14 @@ export default async function ServicesPage() {
                   return (
                     <div key={index} className="relative text-center">
                       <div className="flex flex-col items-center mb-4">
-                        <div className="w-16 h-16 bg-[var(--color-secondary)] text-white flex items-center justify-center mb-3">
-                          <span className="text-xl font-bold">{step.number}</span>
-                        </div>
-                        <div className="w-12 h-12 bg-[var(--color-secondary)]/10 flex items-center justify-center">
-                          <Icon className="h-6 w-6 text-[var(--color-secondary)]" />
+                        {/* Icon container with number badge in top-left */}
+                        <div className="relative w-20 h-20 bg-[var(--color-secondary)]/10 flex items-center justify-center">
+                          {/* Number badge positioned at top-left */}
+                          <div className="absolute -top-2 -left-2 w-8 h-8 bg-[var(--color-secondary)] text-white flex items-center justify-center">
+                            <span className="text-base font-bold">{step.number}</span>
+                          </div>
+                          {/* Icon */}
+                          <Icon className="h-8 w-8 text-[var(--color-secondary)]" />
                         </div>
                       </div>
                       

@@ -41,7 +41,10 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
-  Eye
+  Eye,
+  Image as ImageIcon,
+  X,
+  ExternalLink
 } from "lucide-react";
 import { ContactSubmission } from "@/lib/db/schema";
 import { Label } from "@/components/ui/label";
@@ -66,6 +69,83 @@ const formatRupiah = (value: string | null | undefined): string => {
   
   return formatted;
 };
+
+// Image Gallery Component
+function ImageGallery({ images }: { images: string[] | null | undefined }) {
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  
+  if (!images || images.length === 0) {
+    return (
+      <div className="flex items-center justify-center py-8 border-2 border-dashed border-border rounded-lg bg-muted/20">
+        <div className="text-center">
+          <ImageIcon className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+          <p className="text-sm text-muted-foreground">Tidak ada foto yang diunggah</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {images.map((imageUrl, index) => (
+          <div 
+            key={index} 
+            className="relative aspect-square group cursor-pointer overflow-hidden rounded-lg border border-border hover:border-primary transition-colors"
+            onClick={() => setSelectedImage(imageUrl)}
+          >
+            <img
+              src={imageUrl}
+              alt={`Upload ${index + 1}`}
+              className="w-full h-full object-cover transition-transform group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+              <Eye className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={!!selectedImage} onOpenChange={() => setSelectedImage(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Preview Foto</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="space-y-4">
+              <div className="relative w-full max-h-[70vh] overflow-hidden rounded-lg bg-muted">
+                <img
+                  src={selectedImage}
+                  alt="Preview"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(selectedImage, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Buka di Tab Baru
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedImage(null)}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Tutup
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
 
 // Pagination component
 function Pagination({ 
@@ -330,7 +410,7 @@ export default function ContactSubmissionsPage() {
     switch (service) {
       case "renovation":
         return <Badge variant="secondary">Renovasi</Badge>;
-      case "new-build":
+      case "new-construction":
         return <Badge variant="secondary">Bangun Baru</Badge>;
       default:
         return <Badge variant="outline">{service || "Unknown"}</Badge>;
@@ -341,7 +421,7 @@ export default function ContactSubmissionsPage() {
     switch (service) {
       case "renovation":
         return "Renovasi";
-      case "new-build":
+      case "new-construction":
         return "Bangun Baru";
       default:
         return service || "Tidak disebutkan";
@@ -385,6 +465,12 @@ export default function ContactSubmissionsPage() {
   const handleViewSubmission = (submission: ContactSubmission) => {
     setViewSubmission(submission);
     setIsViewDialogOpen(true);
+  };
+
+  // Helper to get image count
+  const getImageCount = (images: string[] | null | undefined) => {
+    if (!images || !Array.isArray(images)) return 0;
+    return images.length;
   };
 
   return (
@@ -447,7 +533,7 @@ export default function ContactSubmissionsPage() {
                 <SelectContent>
                   <SelectItem value="all">All Services</SelectItem>
                   <SelectItem value="renovation">Renovasi</SelectItem>
-                  <SelectItem value="new-build">Bangun Baru</SelectItem>
+                  <SelectItem value="new-construction">Bangun Baru</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -482,6 +568,7 @@ export default function ContactSubmissionsPage() {
                       <TableHead>Service</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Budget</TableHead>
+                      <TableHead>Images</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -500,11 +587,6 @@ export default function ContactSubmissionsPage() {
                         <TableCell className="font-medium">
                           <div>
                             <p>{submission.name || "N/A"}</p>
-                            {/* {submission.details && (
-                              <p className="text-sm text-muted-foreground truncate max-w-[200px]">
-                                {submission.details}
-                              </p>
-                            )} */}
                           </div>
                         </TableCell>
                         <TableCell>{getServiceBadge(submission.service)}</TableCell>
@@ -515,6 +597,16 @@ export default function ContactSubmissionsPage() {
                         </TableCell>
                         <TableCell>
                           {formatRupiah(submission.budget)}
+                        </TableCell>
+                        <TableCell>
+                          {getImageCount(submission.images) > 0 ? (
+                            <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                              <ImageIcon className="h-4 w-4" />
+                              <span>{getImageCount(submission.images)}</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">-</span>
+                          )}
                         </TableCell>
                         <TableCell>{getStatusBadge(submission.status)}</TableCell>
                         <TableCell>{formatDate(submission.createdAt)}</TableCell>
@@ -622,9 +714,9 @@ export default function ContactSubmissionsPage() {
         </CardContent>
       </Card>
 
-      {/* View Submission Dialog - Improved Form Layout */}
+      {/* View Submission Dialog - Improved with Image Gallery */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Detail Pengajuan</DialogTitle>
             <DialogDescription>
@@ -679,7 +771,7 @@ export default function ContactSubmissionsPage() {
                       Luas Area
                     </Label>
                     <p className="col-span-2 text-sm">
-                      {viewSubmission.area ? `${viewSubmission.area} m²` : "Tidak disebutkan"}
+                      {viewSubmission.area ? `${viewSubmission.area}` : "Tidak disebutkan"}
                     </p>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
@@ -709,6 +801,15 @@ export default function ContactSubmissionsPage() {
                     </p>
                   </div>
                 </div>
+              </div>
+
+              {/* Images Section */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+                  Foto Properti
+                </h3>
+                <Separator />
+                <ImageGallery images={viewSubmission.images} />
               </div>
 
               {/* Status & Timeline Section */}

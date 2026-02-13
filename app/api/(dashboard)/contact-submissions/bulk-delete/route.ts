@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { contactSubmissions } from "@/lib/db/schema";
 import { inArray } from "drizzle-orm";
+import cloudinary from '@/lib/cloudinary';
 
 export async function DELETE(request: NextRequest) {
   try {
@@ -28,7 +29,35 @@ export async function DELETE(request: NextRequest) {
     // Convert to numbers
     const numericIds = ids.map(id => parseInt(id));
     
-    // Delete the submissions
+    // Get all submissions to find their images
+    const submissionsToDelete = await db
+      .select()
+      .from(contactSubmissions)
+      .where(inArray(contactSubmissions.id, numericIds));
+    
+    // Collect all image public IDs
+    const allImagePublicIds: string[] = [];
+    submissionsToDelete.forEach(submission => {
+      if (submission.imagePublicIds && Array.isArray(submission.imagePublicIds)) {
+        allImagePublicIds.push(...submission.imagePublicIds);
+      }
+    });
+    
+    // Delete images from Cloudinary if they exist
+    if (allImagePublicIds.length > 0) {
+      try {
+        const deletePromises = allImagePublicIds.map(publicId => 
+          cloudinary.uploader.destroy(publicId)
+        );
+        await Promise.all(deletePromises);
+        console.log(`Deleted ${allImagePublicIds.length} images from Cloudinary`);
+      } catch (cloudinaryError) {
+        console.error('Error deleting images from Cloudinary:', cloudinaryError);
+        // Continue with submission deletion even if Cloudinary deletion fails
+      }
+    }
+    
+    // Delete the submissions from database
     const result = await db
       .delete(contactSubmissions)
       .where(inArray(contactSubmissions.id, numericIds))
@@ -36,7 +65,8 @@ export async function DELETE(request: NextRequest) {
     
     return NextResponse.json({ 
       success: true,
-      deletedCount: result.length 
+      deletedCount: result.length,
+      imagesDeleted: allImagePublicIds.length
     });
   } catch (error) {
     console.error("Error deleting submissions:", error);

@@ -5,7 +5,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar";
 import { Header } from "@/components/dashboard/Header";
 import { useSession } from "@/components/providers/SessionProvider";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Toaster } from "sonner";
 
 export default function AdminDashboardLayout({
@@ -15,12 +15,17 @@ export default function AdminDashboardLayout({
 }) {
   const { user, isLoading } = useSession();
   const router = useRouter();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== "admin")) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
+
+  const toggleSidebar = () => {
+    setIsSidebarCollapsed(prev => !prev);
+  };
 
   if (isLoading) {
     return (
@@ -39,9 +44,9 @@ export default function AdminDashboardLayout({
 
   return (
     <div className="flex h-screen bg-background">
-      <Sidebar userRole="admin" />
+      <Sidebar userRole="admin" isCollapsed={isSidebarCollapsed} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
+        <Header onToggleSidebar={toggleSidebar} />
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-background p-6">
           {children}
         </main>

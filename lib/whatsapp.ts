@@ -1,4 +1,4 @@
-// lib/whatsapp.ts
+// lib/whatsapp.ts - Updated with improved formatting and Rupiah currency
 export function formatWhatsAppMessage(formData: {
   name: string;
   address: string;
@@ -6,27 +6,82 @@ export function formatWhatsAppMessage(formData: {
   area: string;
   budget: string;
   details: string;
+  images?: string[]; // Array of image URLs
 }): string {
   const serviceLabel = formData.service === 'renovation' ? 'Renovasi' : 'Bangun Baru';
-  const areaText = formData.area ? `*Luasan Area:* ${formData.area}` : '*Luasan Area:* Belum diisi';
-  const budgetText = formData.budget ? `*Estimasi Anggaran:* Rp ${formData.budget}` : '*Estimasi Anggaran:* Belum diisi';
-  const detailsText = formData.details ? `*Detail Tambahan:* ${formData.details}` : '*Detail Tambahan:* Tidak ada';
+  
+  // Format budget with proper Rupiah formatting
+  const formatBudget = (budget: string): string => {
+    if (!budget) return 'Belum disebutkan';
+    
+    // Remove non-numeric characters
+    const numericValue = budget.replace(/[^\d]/g, '');
+    if (!numericValue) return 'Belum disebutkan';
+    
+    // Format as Rupiah with thousand separators
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(Number(numericValue));
+  };
 
-  const message = `
-📋 *Formulir Kontak Baru*
+  // Build message sections
+  const sections = [];
 
-👤 *Nama:* ${formData.name}
-📍 *Alamat:* ${formData.address}
-🔨 *Jenis Layanan:* ${serviceLabel}
-📐 ${areaText}
-💰 ${budgetText}
-📝 ${detailsText}
+  // Header
+  sections.push(`*PENGAJUAN ${serviceLabel.toUpperCase()}*`);
+  sections.push('━━━━━━━━━━━━━━━━━━━━');
 
-🔔 *Mohon segera follow up lead ini.*
+  // Client Information
+  sections.push('*Informasi Klien*');
+  sections.push(`Nama: ${formData.name}`);
+  sections.push('');
 
-*Waktu Pengiriman:* ${new Date().toLocaleString('id-ID')}
-  `.trim();
+  // Project Details
+  sections.push('*Detail Proyek*');
+  sections.push(`Layanan: ${serviceLabel}`);
+  sections.push(`Lokasi: ${formData.address}`);
+  
+  if (formData.area) {
+    sections.push(`Luas Area: ${formData.area}`);
+  }
+  
+  if (formData.budget) {
+    sections.push(`Budget: ${formatBudget(formData.budget)}`);
+  }
+  
+  if (formData.details) {
+    sections.push('');
+    sections.push('*Keterangan Tambahan*');
+    sections.push(formData.details);
+  }
 
+  // Images section (if any)
+  if (formData.images && formData.images.length > 0) {
+    sections.push('');
+    sections.push(`*Foto Terlampir* (${formData.images.length})`);
+    formData.images.forEach((url, index) => {
+      sections.push(`${index + 1}. ${url}`);
+    });
+  }
+
+  // Footer
+  sections.push('');
+  sections.push('━━━━━━━━━━━━━━━━━━━━');
+  sections.push(`⏰ ${new Date().toLocaleString('id-ID', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })}`);
+  sections.push('');
+  sections.push('_Mohon segera ditindaklanjuti_');
+
+  const message = sections.join('\n');
   return encodeURIComponent(message);
 }
 

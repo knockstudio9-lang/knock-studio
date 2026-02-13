@@ -1,4 +1,4 @@
-// lib/db/schema.ts - Updated with About page tables
+// lib/db/schema.ts - Updated with image fields in contactSubmissions
 import { pgTable, text, integer, timestamp, varchar, jsonb, serial, boolean } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
@@ -48,7 +48,7 @@ export const projects = pgTable('projects', {
   updatedAt: timestamp('updated_at').defaultNow(),
 });
 
-// Contact form submissions table - Updated
+// Contact form submissions table - Updated with image fields
 export const contactSubmissions = pgTable('contact_submissions', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
@@ -56,7 +56,9 @@ export const contactSubmissions = pgTable('contact_submissions', {
   service: varchar('service', { length: 100 }).notNull(),
   area: varchar('area', { length: 100 }), // Made optional
   budget: varchar('budget', { length: 100 }), // Made optional
-  details: text('details'), // New field for additional details
+  details: text('details'), // Additional details
+  images: jsonb('images').$type<string[]>().default([]), // Array of image URLs
+  imagePublicIds: jsonb('image_public_ids').$type<string[]>().default([]), // Array of Cloudinary public IDs
   status: varchar('status', { length: 50 }).default('new'),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow(),

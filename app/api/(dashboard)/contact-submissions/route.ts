@@ -1,10 +1,10 @@
-// app/api/(dashboard)/contact-submissions/route.ts
+// app/api/contact-submissions/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { contactSubmissions } from '@/lib/db/schema';
 import { eq, desc } from 'drizzle-orm';
 
-// GET all contact submissions
+// GET all contact submissions with images
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -38,9 +38,9 @@ export async function GET(request: NextRequest) {
 // POST a new contact submission (for admin use)
 export async function POST(request: NextRequest) {
   try {
-    const { name, address, service, area, budget, status, notes } = await request.json();
+    const { name, address, service, area, budget, details, images, imagePublicIds, status, notes } = await request.json();
     
-    if (!name || !address || !service || !area || !budget) {
+    if (!name || !address || !service) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -51,8 +51,11 @@ export async function POST(request: NextRequest) {
       name,
       address,
       service,
-      area,
-      budget,
+      area: area || null,
+      budget: budget || null,
+      details: details || null,
+      images: images || [],
+      imagePublicIds: imagePublicIds || [],
       status: status || 'new',
       notes: notes || null,
     }).returning();
