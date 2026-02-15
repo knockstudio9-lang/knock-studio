@@ -66,7 +66,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={spaceGrotesk.variable} suppressHydrationWarning>
-      <body className={`${spaceGrotesk.className} antialiased`}>
+      <body className={`${spaceGrotesk.className} antialiased`} suppressHydrationWarning>
         <ThemeProvider>
           <SessionProvider>
             <IntroProvider>

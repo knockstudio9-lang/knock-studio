@@ -64,8 +64,10 @@ export default function Footer() {
           </div>
 
           {/* Address */}
-          <div className="flex items-center justify-center space-x-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4 flex-shrink-0" />
+          <div className="flex items-start md:items-center justify-center space-y-2 md:space-y-0 space-x-1 md:space-x-2 text-sm text-muted-foreground w-full px-4">
+            <div className="flex items-start md:items-center">
+              <MapPin className="h-4 w-4 mt-0.5 md:mt-0" />
+            </div>
             <span className="text-center">
               Jl. Aria Putra No. A3, Serua Indah | Ciputat - Tangerang Selatan
             </span>
