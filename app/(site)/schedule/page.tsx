@@ -1,7 +1,7 @@
-// app/(site)/schedule/page.tsx - Updated with iOS WhatsApp fix
+// app/(site)/schedule/page.tsx - Updated with reCAPTCHA v2
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, SetStateAction } from "react";
 import { User, MapPin, Home, Check, FileText, Upload, X, Image as ImageIcon } from "lucide-react";
 import {
   Select,
@@ -10,15 +10,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import ReCAPTCHA from "react-google-recaptcha";
 
 // Format number to Indonesian Rupiah
 const formatRupiah = (value: string): string => {
-  // Remove all non-numeric characters
   const numbers = value.replace(/\D/g, "");
-  
   if (!numbers) return "";
-  
-  // Format with thousand separators
   return new Intl.NumberFormat("id-ID").format(parseInt(numbers));
 };
 
@@ -49,11 +46,13 @@ export default function ContactPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
+
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const handleBudgetChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const numericValue = parseRupiah(rawValue);
-    
     setFormData({ ...formData, budget: numericValue });
     setDisplayBudget(formatRupiah(rawValue));
   };
@@ -62,9 +61,8 @@ export default function ContactPage() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    // Check if adding these files would exceed the limit
     if (uploadedImages.length + files.length > 5) {
-      setUploadError('Maksimal 5 foto dapat diunggah');
+      setUploadError("Maksimal 5 foto dapat diunggah");
       return;
     }
 
@@ -74,38 +72,35 @@ export default function ContactPage() {
     try {
       const formData = new FormData();
       Array.from(files).forEach(file => {
-        formData.append('files', file);
+        formData.append("files", file);
       });
-      formData.append('folder', 'contact-submissions');
+      formData.append("folder", "contact-submissions");
 
-      const response = await fetch('/api/upload-contact-images', {
-        method: 'POST',
+      const response = await fetch("/api/upload-contact-images", {
+        method: "POST",
         body: formData,
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal mengunggah gambar');
+        throw new Error(data.error || "Gagal mengunggah gambar");
       }
 
       setUploadedImages(prev => [...prev, ...data.images]);
     } catch (err) {
-      setUploadError(err instanceof Error ? err.message : 'Terjadi kesalahan saat mengunggah gambar');
+      setUploadError(err instanceof Error ? err.message : "Terjadi kesalahan saat mengunggah gambar");
     } finally {
       setIsUploading(false);
-      // Reset input
-      e.target.value = '';
+      e.target.value = "";
     }
   };
 
   const handleRemoveImage = async (publicId: string) => {
     try {
-      const response = await fetch('/api/upload-contact-images', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch("/api/upload-contact-images", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ publicIds: [publicId] }),
       });
 
@@ -113,57 +108,60 @@ export default function ContactPage() {
         setUploadedImages(prev => prev.filter(img => img.publicId !== publicId));
       }
     } catch (err) {
-      console.error('Error removing image:', err);
+      console.error("Error removing image:", err);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!recaptchaToken) {
+      setError("Harap selesaikan verifikasi reCAPTCHA.");
+      return;
+    }
+
     setIsSubmitting(true);
     setError(null);
-    
+
     try {
       const submissionData = {
         ...formData,
         images: uploadedImages.map(img => img.url),
         imagePublicIds: uploadedImages.map(img => img.publicId),
+        recaptchaToken,
       };
 
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData),
       });
-      
+
       const data = await response.json();
-      
+
       if (!response.ok) {
-        throw new Error(data.error || 'Gagal mengirim formulir');
+        throw new Error(data.error || "Gagal mengirim formulir");
       }
-      
+
       if (data.whatsappUrl) {
-        // Detect iOS and Safari
         const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-        
-        // For iOS/Safari, use location.href to avoid popup blocking
-        // This works better with deep links and doesn't get blocked
+
         if (isIOS || isSafari) {
-          // Small delay to ensure state updates complete
           setTimeout(() => {
             window.location.href = data.whatsappUrl;
           }, 100);
         } else {
-          // For other browsers, open in new tab
-          window.open(data.whatsappUrl, '_blank');
+          window.open(data.whatsappUrl, "_blank");
         }
       }
-      
+
       setIsSubmitted(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Terjadi kesalahan yang tidak diketahui');
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan yang tidak diketahui");
+      // Reset reCAPTCHA on error so user can try again
+      recaptchaRef.current?.reset();
+      setRecaptchaToken(null);
     } finally {
       setIsSubmitting(false);
     }
@@ -183,6 +181,8 @@ export default function ContactPage() {
     setIsSubmitted(false);
     setError(null);
     setUploadError(null);
+    setRecaptchaToken(null);
+    recaptchaRef.current?.reset();
   };
 
   return (
@@ -224,7 +224,7 @@ export default function ContactPage() {
                     {error}
                   </div>
                 )}
-                
+
                 {/* Nama */}
                 <div className="space-y-2">
                   <label htmlFor="name" className="block text-sm font-medium text-card-foreground">
@@ -237,7 +237,7 @@ export default function ContactPage() {
                       type="text"
                       required
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all text-sm"
                       placeholder="Masukkan nama lengkap Anda"
                     />
@@ -256,7 +256,7 @@ export default function ContactPage() {
                       required
                       rows={3}
                       value={formData.address}
-                      onChange={(e) => setFormData({...formData, address: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all resize-none text-sm"
                       placeholder="Masukkan alamat lengkap lokasi proyek"
                     />
@@ -270,7 +270,7 @@ export default function ContactPage() {
                   </label>
                   <Select
                     value={formData.service}
-                    onValueChange={(value) => setFormData({...formData, service: value})}
+                    onValueChange={(value) => setFormData({ ...formData, service: value })}
                   >
                     <SelectTrigger className="w-full border-border bg-background focus:ring-1 focus:ring-ring text-sm h-auto py-2.5">
                       <SelectValue placeholder="Pilih jenis layanan" />
@@ -297,13 +297,13 @@ export default function ContactPage() {
                       id="area"
                       type="text"
                       value={formData.area}
-                      onChange={(e) => setFormData({...formData, area: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, area: e.target.value })}
                       className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all text-sm"
                       placeholder="Contoh: 100 m² atau 10x15 m"
                     />
                   </div>
                   <p className="text-xs text-muted-foreground mt-1.5">
-                    Masukkan luas area dalam m²  (opsional)
+                    Masukkan luas area dalam m² (opsional)
                   </p>
                 </div>
 
@@ -341,7 +341,7 @@ export default function ContactPage() {
                       id="details"
                       rows={4}
                       value={formData.details}
-                      onChange={(e) => setFormData({...formData, details: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                       className="w-full pl-11 pr-4 py-2.5 border border-border bg-background text-card-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-all resize-none text-sm"
                       placeholder="Berikan informasi tambahan tentang proyek Anda (opsional)"
                     />
@@ -353,8 +353,7 @@ export default function ContactPage() {
                   <label className="block text-sm font-medium text-card-foreground">
                     Unggah Foto Properti
                   </label>
-                  
-                  {/* Upload Button */}
+
                   <div className="relative">
                     <input
                       type="file"
@@ -368,7 +367,7 @@ export default function ContactPage() {
                     <label
                       htmlFor="image-upload"
                       className={`flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-border bg-background text-muted-foreground hover:border-ring hover:text-ring transition-all cursor-pointer text-sm ${
-                        (isUploading || uploadedImages.length >= 5) ? 'opacity-50 cursor-not-allowed' : ''
+                        isUploading || uploadedImages.length >= 5 ? "opacity-50 cursor-not-allowed" : ""
                       }`}
                     >
                       {isUploading ? (
@@ -379,8 +378,8 @@ export default function ContactPage() {
                       ) : (
                         <>
                           <ImageIcon className="h-4 w-4 mr-2" />
-                          {uploadedImages.length >= 5 
-                            ? 'Maksimal 5 foto tercapai' 
+                          {uploadedImages.length >= 5
+                            ? "Maksimal 5 foto tercapai"
                             : `Pilih Foto (${uploadedImages.length}/5)`}
                         </>
                       )}
@@ -396,7 +395,6 @@ export default function ContactPage() {
                     maksimal 5 foto, 5MB per foto
                   </p>
 
-                  {/* Image Preview Grid */}
                   {uploadedImages.length > 0 && (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
                       {uploadedImages.map((image, index) => (
@@ -419,6 +417,24 @@ export default function ContactPage() {
                   )}
                 </div>
 
+                {/* reCAPTCHA */}
+                <div className="space-y-1">
+                  <div className="flex justify-start">
+                    <ReCAPTCHA
+                      ref={recaptchaRef}
+                      sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
+                      onChange={(token: SetStateAction<string | null>) => {
+                        setRecaptchaToken(token);
+                        // Clear reCAPTCHA-related error when user completes it
+                        if (token && error === "Harap selesaikan verifikasi reCAPTCHA.") {
+                          setError(null);
+                        }
+                      }}
+                      onExpired={() => setRecaptchaToken(null)}
+                    />
+                  </div>
+                </div>
+
                 {/* Submit Button */}
                 <div className="pt-2">
                   <button
@@ -426,7 +442,7 @@ export default function ContactPage() {
                     disabled={isSubmitting}
                     className="w-full px-6 py-3 bg-ring text-white hover:bg-ring/90 transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}
+                    {isSubmitting ? "Mengirim..." : "Kirim Pesan"}
                   </button>
                 </div>
               </form>
