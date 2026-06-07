@@ -447,15 +447,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               <CardContent>
                 <ImageUpload
                   onImageUpload={(url, publicId) => {
-                    setImageData({
-                      ...imageData,
-                      beforeImage: url,
-                      beforeImagePublicId: publicId,
-                    });
+                    setImageData({ ...imageData, beforeImage: url, beforeImagePublicId: publicId });
                   }}
                   currentImage={imageData.beforeImage}
                   label="Upload Before Image"
                   folder={`portfolio/${formData.title.toLowerCase().replace(/\s+/g, '-') || 'project'}/before`}
+                  recommendation="Match the After photo's angle, distance and shape so the before→after slider lines up cleanly. Same size as After: ~2400 × 1600 px (3:2 landscape). JPG or WEBP, under 10 MB."
                 />
               </CardContent>
             </Card>
@@ -470,15 +467,12 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               <CardContent>
                 <ImageUpload
                   onImageUpload={(url, publicId) => {
-                    setImageData({
-                      ...imageData,
-                      afterImage: url,
-                      afterImagePublicId: publicId,
-                    });
+                    setImageData({ ...imageData, afterImage: url, afterImagePublicId: publicId });
                   }}
                   currentImage={imageData.afterImage}
                   label="Upload After Image"
                   folder={`portfolio/${formData.title.toLowerCase().replace(/\s+/g, '-') || 'project'}/after`}
+                  recommendation="Main hero + thumbnail — use your highest-quality shot. Landscape, ~2400 × 1600 px (3:2), min 1920 px wide. It's cropped to a wide hero banner and a 4:3 card, so keep the subject centred. JPG or WEBP, under 10 MB."
                 />
               </CardContent>
             </Card>
@@ -493,15 +487,13 @@ export default function EditProjectPage({ params }: { params: Promise<{ id: stri
               <CardContent>
                 <MultiImageUpload
                   onImagesChange={(images) => {
-                    setImageData({
-                      ...imageData,
-                      galleryImages: images,
-                    });
+                    setImageData({ ...imageData, galleryImages: images });
                   }}
                   currentImages={imageData.galleryImages}
                   label="Upload Gallery Images"
                   folder={`portfolio/${formData.title.toLowerCase().replace(/\s+/g, '-') || 'project'}/gallery`}
                   maxFiles={10}
+                  recommendation="Landscape, ~1920 × 1280 px (3:2) or 1600 × 1200 px (4:3). Keep every gallery photo the same orientation for a tidy grid. JPG or WEBP, under 5 MB each."
                 />
               </CardContent>
             </Card>

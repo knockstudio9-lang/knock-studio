@@ -31,7 +31,6 @@ export default function PortfolioPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(0);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
-  const [scrollProgress, setScrollProgress] = useState(0);
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch projects from API
@@ -40,11 +39,11 @@ export default function PortfolioPage() {
       try {
         setLoading(true);
         const response = await fetch('/api/portfoliopublic');
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch projects');
         }
-        
+
         const data = await response.json();
         // The API already returns projects sorted by order, but we ensure it here as well
         const sortedProjects = data.sort((a: Project, b: Project) => a.order - b.order);
@@ -61,16 +60,16 @@ export default function PortfolioPage() {
   }, []);
 
   const selectedProject = projects[selectedProjectIndex];
-  
+
   // Get all images for the current project - only include after and gallery images
   const allProjectImages = selectedProject ? [
     { type: 'after' as const, label: 'After' },
-    ...selectedProject.galleryImages.map((_, index) => ({ 
-      type: 'gallery' as const, 
-      label: `Gallery ${index + 1}` 
+    ...selectedProject.galleryImages.map((_, index) => ({
+      type: 'gallery' as const,
+      label: `Gallery ${index + 1}`
     }))
   ] : [];
-  
+
   const currentImageType = allProjectImages[selectedImageIndex];
 
   useEffect(() => {
@@ -79,16 +78,12 @@ export default function PortfolioPage() {
         const scrollTop = imageContainerRef.current.scrollTop;
         const scrollHeight = imageContainerRef.current.scrollHeight - imageContainerRef.current.clientHeight;
         const progress = scrollTop / scrollHeight;
-        
+
         const projectIndex = Math.min(
           Math.floor(progress * projects.length),
           projects.length - 1
         );
-        
-        const projectProgress = (progress * projects.length) % 1;
-        
-        setScrollProgress(projectProgress);
-        
+
         // Only update project index if it actually changed
         if (projectIndex !== selectedProjectIndex) {
           setSelectedProjectIndex(projectIndex);
@@ -108,9 +103,9 @@ export default function PortfolioPage() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Only handle arrow keys if not focused on an input
-      if (document.activeElement?.tagName === 'INPUT' || 
+      if (document.activeElement?.tagName === 'INPUT' ||
           document.activeElement?.tagName === 'TEXTAREA') return;
-      
+
       if (e.key === 'ArrowRight') {
         e.preventDefault();
         nextImage();
@@ -142,44 +137,15 @@ export default function PortfolioPage() {
     setSelectedImageIndex((prev) => (prev - 1 + allProjectImages.length) % allProjectImages.length);
   };
 
-  const getAnimationStyle = (delay = 0, direction = 'up') => {
-    const progress = Math.max(0, Math.min(1, scrollProgress * 1.5 - delay));
-    const opacity = 1 - progress;
-    
-    let translateY = 0;
-    let translateX = 0;
-    
-    switch (direction) {
-      case 'up':
-        translateY = progress * -50;
-        break;
-      case 'down':
-        translateY = progress * 50;
-        break;
-      case 'left':
-        translateX = progress * -50;
-        break;
-      case 'right':
-        translateX = progress * 50;
-        break;
-    }
-    
-    return {
-      opacity,
-      transform: `translate(${translateX}px, ${translateY}px)`,
-      transition: 'opacity 0.15s ease-out, transform 0.15s ease-out'
-    };
-  };
-
   // Animation variants for different elements - faster and smoother
   const titleVariants = {
-    initial: { 
-      opacity: 0, 
+    initial: {
+      opacity: 0,
       y: 40,
       scale: 0.95
     },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -187,8 +153,8 @@ export default function PortfolioPage() {
         ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       y: -30,
       scale: 1.05,
       transition: {
@@ -199,13 +165,13 @@ export default function PortfolioPage() {
   };
 
   const slideFromRight = {
-    initial: { 
-      opacity: 0, 
+    initial: {
+      opacity: 0,
       x: 60,
       rotate: 3
     },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       x: 0,
       rotate: 0,
       transition: {
@@ -214,8 +180,8 @@ export default function PortfolioPage() {
         delay: 0.05
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       x: -60,
       transition: {
         duration: 0.3,
@@ -225,13 +191,13 @@ export default function PortfolioPage() {
   };
 
   const slideFromLeft = {
-    initial: { 
-      opacity: 0, 
+    initial: {
+      opacity: 0,
       x: -60,
       rotate: -3
     },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       x: 0,
       rotate: 0,
       transition: {
@@ -240,8 +206,8 @@ export default function PortfolioPage() {
         delay: 0.1
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       x: 60,
       transition: {
         duration: 0.3,
@@ -251,13 +217,13 @@ export default function PortfolioPage() {
   };
 
   const categoryVariants = {
-    initial: { 
-      opacity: 0, 
+    initial: {
+      opacity: 0,
       x: -20,
       rotate: -90
     },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       x: 0,
       rotate: -90,
       transition: {
@@ -266,8 +232,8 @@ export default function PortfolioPage() {
         delay: 0.03
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       x: 20,
       rotate: -90,
       transition: {
@@ -278,13 +244,13 @@ export default function PortfolioPage() {
   };
 
   const buttonVariants = {
-    initial: { 
-      opacity: 0, 
+    initial: {
+      opacity: 0,
       y: 30,
       scale: 0.95
     },
-    animate: { 
-      opacity: 1, 
+    animate: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -293,8 +259,8 @@ export default function PortfolioPage() {
         delay: 0.12
       }
     },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       y: -30,
       scale: 0.95,
       transition: {
@@ -337,14 +303,16 @@ export default function PortfolioPage() {
     <div className="min-h-screen bg-background">
       {/* Main Project Showcase */}
       <section className="relative h-screen w-full overflow-hidden">
-        {/* Scrollable Images Container - This handles project navigation */}
-        <div 
+        {/* Scrollable Images Container - This handles project navigation.
+            The after-image always lives here, so we never re-render it in the
+            overlay (that double layer was the source of the flicker). */}
+        <div
           ref={imageContainerRef}
           className="absolute inset-0 overflow-y-scroll scrollbar-hide"
           style={{ scrollSnapType: 'y mandatory' }}
         >
           {projects.map((project, index) => (
-            <div 
+            <div
               key={project.id}
               className="relative h-screen w-full"
               style={{ scrollSnapAlign: 'start' }}
@@ -353,52 +321,45 @@ export default function PortfolioPage() {
                 src={project.afterImage}
                 alt={project.title}
                 fill
+                sizes="100vw"
                 className="object-cover"
-                priority={index === 0}
+                // Preload the current and the next slide so scrolling never
+                // flashes a blank frame while the photo lazy-loads.
+                priority={
+                  index === selectedProjectIndex ||
+                  index === selectedProjectIndex + 1
+                }
               />
               <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
             </div>
           ))}
         </div>
 
-        {/* Current Image Display Overlay - This handles image navigation within project */}
-        <div className="absolute inset-0 z-5 pointer-events-none">
-          <AnimatePresence mode="wait">
-            {currentImageType && currentImageType.type === 'after' ? (
-              <motion.div 
-                key={`after-${selectedProject.id}`} 
+        {/* Current Image Display Overlay - gallery images ONLY.
+            When viewing the "after" image we show nothing here and let the
+            scroll layer's image come through. No mode="wait", so gallery
+            images crossfade instead of dipping to an empty frame. */}
+        <div className="absolute inset-0 z-[5] pointer-events-none">
+          <AnimatePresence>
+            {currentImageType?.type === 'gallery' && (
+              <motion.div
+                key={`gallery-${selectedProject.id}-${selectedImageIndex}`}
                 className="relative w-full h-full"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src={selectedProject.afterImage}
-                  alt={selectedProject.title}
-                  fill
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
-              </motion.div>
-            ) : currentImageType && currentImageType.type === 'gallery' ? (
-              <motion.div 
-                key={`gallery-${selectedProject.id}-${selectedImageIndex}`} 
-                className="relative w-full h-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.4, ease: 'easeInOut' }}
               >
                 <Image
                   src={selectedProject.galleryImages[selectedImageIndex - 1]}
                   alt={`${selectedProject.title} - ${currentImageType.label}`}
                   fill
+                  sizes="100vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
               </motion.div>
-            ) : null}
+            )}
           </AnimatePresence>
         </div>
 
@@ -408,44 +369,34 @@ export default function PortfolioPage() {
             <div className="h-full w-full text-white px-6 md:px-12 py-24">
               <AnimatePresence mode="wait">
                 {/* Project Title - Top Left Area */}
-                <motion.div 
+                <motion.div
                   key={`title-${selectedProject.id}`}
                   className="absolute top-28 left-10 md:left-16 max-w-2xl"
                   variants={titleVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0, 'up')}
                 >
-                  <motion.h1 
+                  <motion.h1
                     className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
                     layoutId={`title-${selectedProject.id}`}
                   >
                     {selectedProject.title}
                   </motion.h1>
-                  {/* <motion.p 
-                    className="text-lg md:text-xl mt-2 opacity-80"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.8 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    {currentImageType?.label}
-                  </motion.p> */}
                 </motion.div>
               </AnimatePresence>
 
               <AnimatePresence mode="wait">
                 {/* Area Info - Top Right */}
-                <motion.div 
+                <motion.div
                   key={`area-${selectedProject.id}`}
                   className="absolute top-52 md:top-20 right-8 md:right-20 text-right"
                   variants={slideFromRight}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0.1, 'right')}
                 >
-                  <motion.div 
+                  <motion.div
                     className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.7 }}
@@ -459,16 +410,15 @@ export default function PortfolioPage() {
 
               <AnimatePresence mode="wait">
                 {/* Completion - Middle Right */}
-                <motion.div 
+                <motion.div
                   key={`completion-${selectedProject.id}`}
                   className="absolute top-1/3 right-8 md:right-28 text-right"
                   variants={slideFromRight}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0.15, 'right')}
                 >
-                  <motion.div 
+                  <motion.div
                     className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.7 }}
@@ -482,16 +432,15 @@ export default function PortfolioPage() {
 
               <AnimatePresence mode="wait">
                 {/* Year - Below Completion */}
-                <motion.div 
+                <motion.div
                   key={`year-${selectedProject.id}`}
                   className="absolute top-1/3 mt-20 md:mt-24 right-8 md:right-28 text-right"
                   variants={slideFromRight}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0.2, 'right')}
                 >
-                  <motion.div 
+                  <motion.div
                     className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.7 }}
@@ -505,16 +454,15 @@ export default function PortfolioPage() {
 
               <AnimatePresence mode="wait">
                 {/* Location - Lower Left */}
-                <motion.div 
+                <motion.div
                   key={`location-${selectedProject.id}`}
                   className="absolute bottom-68 md:bottom-50 left-12 md:left-10"
                   variants={slideFromLeft}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0.2, 'left')}
                 >
-                  <motion.div 
+                  <motion.div
                     className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 0.7 }}
@@ -528,14 +476,13 @@ export default function PortfolioPage() {
 
               <AnimatePresence mode="wait">
                 {/* Category - Middle Left */}
-                <motion.div 
+                <motion.div
                   key={`category-${selectedProject.id}`}
                   className="absolute top-1/2 left-8 md:left-12 origin-left"
                   variants={categoryVariants}
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  style={getAnimationStyle(0.05, 'up')}
                 >
                   <div className="text-sm md:text-base opacity-80 tracking-[0.3em] uppercase">
                     {selectedProject.category}
@@ -545,7 +492,7 @@ export default function PortfolioPage() {
 
               <AnimatePresence mode="wait">
                 {/* View Details Button - Using Button Component with Variants */}
-                <motion.div 
+                <motion.div
                   key={`details-btn-${selectedProject.id}`}
                   className="absolute bottom-52 -right-20 md:bottom-44 transform -translate-x-1/2 pointer-events-auto"
                   variants={buttonVariants}
@@ -554,7 +501,7 @@ export default function PortfolioPage() {
                   exit="exit"
                 >
                   <Link href={`/portfolio/${selectedProject.id}`}>
-                    <Button 
+                    <Button
                       size="lg"
                       className="bg-primary hover:bg-primary-900 text-white shadow-lg"
                     >
@@ -569,7 +516,7 @@ export default function PortfolioPage() {
 
         {/* Bottom Navigation Bar - Improved Styling */}
         <div className="absolute bottom-0 left-0 right-0 z-20">
-          <motion.div 
+          <motion.div
             className="flex flex-col md:flex-row h-auto md:h-40 bg-background/95 backdrop-blur-md border-t border-border shadow-lg"
             initial={{ y: 100 }}
             animate={{ y: 0 }}
@@ -583,8 +530,8 @@ export default function PortfolioPage() {
                   onClick={() => scrollToProject(index)}
                   className={cn(
                     "relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-sm overflow-hidden transition-all duration-300",
-                    selectedProjectIndex === index 
-                      ? 'ring-2 ring-primary opacity-100' 
+                    selectedProjectIndex === index
+                      ? 'ring-2 ring-primary opacity-100'
                       : 'opacity-50 hover:opacity-80'
                   )}
                 >
@@ -592,6 +539,7 @@ export default function PortfolioPage() {
                     src={project.afterImage}
                     alt={project.title}
                     fill
+                    sizes="96px"
                     className="object-cover"
                   />
                   {selectedProjectIndex === index && (

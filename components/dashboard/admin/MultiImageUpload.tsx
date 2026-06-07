@@ -4,7 +4,7 @@
 
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2, GripVertical } from "lucide-react";
+import { Upload, X, Loader2, GripVertical, Info } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +20,8 @@ interface MultiImageUploadProps {
   label?: string;
   folder?: string;
   maxFiles?: number;
+  /** Optional guidance note (recommended dimensions, ratio, file size) shown above the uploader. */
+  recommendation?: string;
 }
 
 export default function MultiImageUpload({
@@ -28,6 +30,7 @@ export default function MultiImageUpload({
   label = "Upload Images",
   folder = "portfolio/gallery",
   maxFiles = 10,
+  recommendation,
 }: MultiImageUploadProps) {
   const [images, setImages] = useState<ImageData[]>(currentImages);
   const [uploading, setUploading] = useState(false);
@@ -38,7 +41,7 @@ export default function MultiImageUpload({
 
   const handleUpload = async (files: FileList) => {
     const fileArray = Array.from(files);
-    
+
     // Check max files limit
     if (images.length + fileArray.length > maxFiles) {
       setError(`Maximum ${maxFiles} images allowed`);
@@ -80,7 +83,7 @@ export default function MultiImageUpload({
         }
 
         const data = await response.json();
-        
+
         if (data.success) {
           newImages.push({
             url: data.url,
@@ -157,6 +160,14 @@ export default function MultiImageUpload({
         disabled={uploading}
       />
 
+      {/* Recommended size / resolution note */}
+      {recommendation && (
+        <div className="flex items-start gap-2 rounded-md border border-secondary-200 bg-secondary-50 px-3 py-2 text-xs leading-relaxed text-secondary-900">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary-600" />
+          <span>{recommendation}</span>
+        </div>
+      )}
+
       {/* Upload Area */}
       <div
         className={cn(
@@ -226,7 +237,7 @@ export default function MultiImageUpload({
                 className="object-cover"
                 sizes="(max-width: 768px) 50vw, 25vw"
               />
-              
+
               {/* Overlay with controls */}
               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                 <Button
@@ -259,7 +270,7 @@ export default function MultiImageUpload({
                           }
 
                           const data = await response.json();
-                          
+
                           if (data.success) {
                             // Replace the image at this index
                             const updatedImages = [...images];

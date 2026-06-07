@@ -4,7 +4,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, X, Loader2, AlertCircle, CheckCircle2, RefreshCw } from "lucide-react";
+import { Upload, X, Loader2, AlertCircle, CheckCircle2, RefreshCw, Info } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -23,6 +23,8 @@ interface ImageUploadProps {
   maxFiles?: number;
   aspectRatio?: string;
   showRemoveButton?: boolean;
+  /** Optional guidance note (recommended dimensions, ratio, file size) shown above the uploader. */
+  recommendation?: string;
 }
 
 export default function ImageUpload({
@@ -34,6 +36,7 @@ export default function ImageUpload({
   maxFiles = 1,
   aspectRatio = "video",
   showRemoveButton = true,
+  recommendation,
 }: ImageUploadProps) {
   const [uploading, setUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -132,7 +135,7 @@ export default function ImageUpload({
       if (!response.ok) {
         // Handle different HTTP status codes
         let errorMessage = "Upload failed";
-        
+
         if (response.status === 413) {
           errorMessage = "File is too large. Maximum size is 10MB.";
         } else if (response.status === 415) {
@@ -154,7 +157,7 @@ export default function ImageUpload({
         setUploadSuccess(true);
         onImageUpload(data.url, data.publicId);
         toast.success("Image uploaded successfully!");
-        
+
         // Reset success state after 2 seconds
         setTimeout(() => setUploadSuccess(false), 2000);
       } else {
@@ -162,11 +165,11 @@ export default function ImageUpload({
       }
     } catch (error: any) {
       console.error("Upload error:", error);
-      
+
       const errorMessage = error.message || "Failed to upload image. Please try again.";
       setError(errorMessage);
       toast.error(errorMessage);
-      
+
       // Reset preview on error
       setPreview(currentImage || null);
     } finally {
@@ -243,14 +246,22 @@ export default function ImageUpload({
         disabled={uploading}
       />
 
+      {/* Recommended size / resolution note */}
+      {recommendation && (
+        <div className="flex items-start gap-2 rounded-md border border-secondary-200 bg-secondary-50 px-3 py-2 text-xs leading-relaxed text-secondary-900">
+          <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-secondary-600" />
+          <span>{recommendation}</span>
+        </div>
+      )}
+
       {!preview ? (
         <div
           className={cn(
             "relative border-2 border-dashed rounded-lg transition-all cursor-pointer",
             getAspectRatioClass(),
             "flex items-center justify-center",
-            dragActive 
-              ? "border-primary bg-primary/5 scale-[1.02]" 
+            dragActive
+              ? "border-primary bg-primary/5 scale-[1.02]"
               : "border-gray-300 hover:border-primary/50 hover:bg-gray-50/50",
             uploading && "opacity-50 cursor-not-allowed pointer-events-none"
           )}
@@ -274,7 +285,7 @@ export default function ImageUpload({
                 <div className="space-y-1 text-center">
                   <p className="text-sm font-medium text-gray-700">Uploading...</p>
                   <div className="w-48 h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-primary transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     />
@@ -309,12 +320,12 @@ export default function ImageUpload({
         </div>
       ) : (
         <div className="relative group">
-          <div 
+          <div
             className={cn(
               "relative w-full overflow-hidden rounded-lg border-2 transition-all",
               getAspectRatioClass(),
-              uploading 
-                ? "border-primary cursor-wait" 
+              uploading
+                ? "border-primary cursor-wait"
                 : "border-gray-200 cursor-pointer hover:border-primary/50",
               uploadSuccess && "border-green-500"
             )}
@@ -330,7 +341,7 @@ export default function ImageUpload({
               )}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
-            
+
             {/* Upload progress overlay */}
             {uploading && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30 backdrop-blur-sm">
@@ -339,7 +350,7 @@ export default function ImageUpload({
                   <div className="space-y-1">
                     <p className="text-white text-sm font-medium">Uploading...</p>
                     <div className="w-48 h-2 bg-white/30 rounded-full overflow-hidden">
-                      <div 
+                      <div
                         className="h-full bg-white transition-all duration-300"
                         style={{ width: `${uploadProgress}%` }}
                       />
