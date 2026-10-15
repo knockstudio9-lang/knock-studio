@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { Menu, X, Moon, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +34,14 @@ export default function Header() {
   // Determine if header should have the scrolled styling
   const shouldShowScrolledStyle = isScrolled || mobileMenuOpen;
 
+  // Portfolio pages start with a full-bleed photo behind the header, so the
+  // theme text colour (dark in light mode) would disappear. While the header
+  // is transparent there we force a light, image-safe style in both themes.
+  const overImage = pathname.startsWith("/portfolio") && !shouldShowScrolledStyle;
+  const textClass = overImage ? "text-white drop-shadow-sm" : "header-text";
+  const iconClass = overImage ? "text-white" : "header-text";
+  const useLightLogo = overImage || theme === "dark";
+
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
@@ -43,10 +53,10 @@ export default function Header() {
       <nav className="container-custom flex items-center justify-between py-4">
         {/* 1. LEFT SIDE: Logo - Different logos for light and dark themes */}
         <Link href="/" className="flex items-center z-50 relative">
-          {theme === "dark" ? (
+          {useLightLogo ? (
             <Image
-              src="/logo.gif" 
-              alt="Knock Logo" 
+              src="/logo.gif"
+              alt="Knock Logo"
               width={800} 
               height={40}
               className="h-auto w-32" 
@@ -68,7 +78,7 @@ export default function Header() {
             <Link
               key={item.name}
               href={item.href}
-              className="text-sm font-medium header-text transition-colors hover:text-[var(--color-secondary)]"
+              className={`text-sm font-medium ${textClass} transition-colors hover:text-[var(--color-secondary)]`}
             >
               {item.name}
             </Link>
@@ -80,20 +90,24 @@ export default function Header() {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-md transition-colors hover:bg-muted"
+            className={`p-2 rounded-md transition-colors ${overImage ? "hover:bg-white/15" : "hover:bg-muted"}`}
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
-              <Sun className="h-5 w-5 header-text" />
+              <Sun className={`h-5 w-5 ${iconClass}`} />
             ) : (
-              <Moon className="h-5 w-5 header-text" />
+              <Moon className={`h-5 w-5 ${iconClass}`} />
             )}
           </button>
 
           {/* Schedule Meeting Button */}
           <Button
             size="sm"
-            className="header-button-bg header-button-text hover:opacity-90 hover:text-white"
+            className={
+              overImage
+                ? "bg-white text-primary hover:bg-white/90"
+                : "header-button-bg header-button-text hover:opacity-90 hover:text-white"
+            }
           >
             <Link
               href="/schedule"
@@ -108,13 +122,13 @@ export default function Header() {
           {/* Mobile Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-md transition-colors z-50 relative hover:bg-muted"
+            className={`p-2 rounded-md transition-colors z-50 relative ${overImage ? "hover:bg-white/15" : "hover:bg-muted"}`}
             aria-label="Toggle theme"
           >
             {theme === "dark" ? (
-              <Sun className="h-5 w-5 header-text" />
+              <Sun className={`h-5 w-5 ${iconClass}`} />
             ) : (
-              <Moon className="h-5 w-5 header-text" />
+              <Moon className={`h-5 w-5 ${iconClass}`} />
             )}
           </button>
 
@@ -128,7 +142,7 @@ export default function Header() {
             {mobileMenuOpen ? (
               <X className="h-6 w-6 header-text" />
             ) : (
-              <Menu className="h-6 w-6 header-text" />
+              <Menu className={`h-6 w-6 ${iconClass}`} />
             )}
           </button>
         </div>

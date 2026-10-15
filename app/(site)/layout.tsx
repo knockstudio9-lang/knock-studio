@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { useIntro } from "@/context/IntroContext";
 
 export default function SiteLayout({
@@ -26,6 +27,7 @@ export default function SiteLayout({
 
       <main>{children}</main>
       <Footer />
+      <WhatsAppButton />
     </>
   );
 }

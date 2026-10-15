@@ -2,13 +2,13 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, ChevronLeft, ChevronRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Define types for our components
 interface Project {
   id: number;
   title: string;
@@ -22,8 +22,12 @@ interface Project {
   afterImage: string;
   galleryImages: string[];
   tags: string[];
-  order: number; // Added order field
+  order: number;
 }
+
+const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+const pad = (n: number) => String(n).padStart(2, "0");
 
 export default function PortfolioPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -33,24 +37,18 @@ export default function PortfolioPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const imageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch projects from API
   useEffect(() => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/portfoliopublic');
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch projects');
-        }
+        const response = await fetch("/api/portfoliopublic");
+        if (!response.ok) throw new Error("Failed to fetch projects");
 
         const data = await response.json();
-        // The API already returns projects sorted by order, but we ensure it here as well
-        const sortedProjects = data.sort((a: Project, b: Project) => a.order - b.order);
-        setProjects(sortedProjects);
+        setProjects(data.sort((a: Project, b: Project) => a.order - b.order));
       } catch (err) {
-        console.error('Error fetching projects:', err);
-        setError('Failed to load projects. Please try again later.');
+        console.error("Error fetching projects:", err);
+        setError("Failed to load projects. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -61,235 +59,84 @@ export default function PortfolioPage() {
 
   const selectedProject = projects[selectedProjectIndex];
 
-  // Get all images for the current project - only include after and gallery images
-  const allProjectImages = selectedProject ? [
-    { type: 'after' as const, label: 'After' },
-    ...selectedProject.galleryImages.map((_, index) => ({
-      type: 'gallery' as const,
-      label: `Gallery ${index + 1}`
-    }))
-  ] : [];
+  // "After" image + gallery images of the active project
+  const imageCount = selectedProject ? 1 + selectedProject.galleryImages.length : 0;
+  const galleryImage =
+    selectedProject && selectedImageIndex > 0
+      ? selectedProject.galleryImages[selectedImageIndex - 1]
+      : null;
 
-  const currentImageType = allProjectImages[selectedImageIndex];
-
+  // Track which project is in view while scrolling
   useEffect(() => {
+    const container = imageContainerRef.current;
+    if (!container || projects.length === 0) return;
+
     const handleScroll = () => {
-      if (imageContainerRef.current && projects.length > 0) {
-        const scrollTop = imageContainerRef.current.scrollTop;
-        const scrollHeight = imageContainerRef.current.scrollHeight - imageContainerRef.current.clientHeight;
-        const progress = scrollTop / scrollHeight;
-
-        const projectIndex = Math.min(
-          Math.floor(progress * projects.length),
-          projects.length - 1
-        );
-
-        // Only update project index if it actually changed
-        if (projectIndex !== selectedProjectIndex) {
-          setSelectedProjectIndex(projectIndex);
-          setSelectedImageIndex(0); // Reset image index when project changes
-        }
+      const index = Math.min(
+        Math.max(Math.round(container.scrollTop / container.clientHeight), 0),
+        projects.length - 1
+      );
+      if (index !== selectedProjectIndex) {
+        setSelectedProjectIndex(index);
+        setSelectedImageIndex(0);
       }
     };
 
-    const container = imageContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-      return () => container.removeEventListener('scroll', handleScroll);
-    }
+    container.addEventListener("scroll", handleScroll, { passive: true });
+    return () => container.removeEventListener("scroll", handleScroll);
   }, [selectedProjectIndex, projects.length]);
 
-  // Handle keyboard navigation for images within a project
+  const nextImage = useCallback(() => {
+    if (imageCount < 2) return;
+    setSelectedImageIndex((prev) => (prev + 1) % imageCount);
+  }, [imageCount]);
+
+  const prevImage = useCallback(() => {
+    if (imageCount < 2) return;
+    setSelectedImageIndex((prev) => (prev - 1 + imageCount) % imageCount);
+  }, [imageCount]);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only handle arrow keys if not focused on an input
-      if (document.activeElement?.tagName === 'INPUT' ||
-          document.activeElement?.tagName === 'TEXTAREA') return;
-
-      if (e.key === 'ArrowRight') {
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA") return;
+      if (e.key === "ArrowRight") {
         e.preventDefault();
         nextImage();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         prevImage();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedImageIndex, selectedProjectIndex]);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [nextImage, prevImage]);
 
   const scrollToProject = (index: number) => {
-    if (imageContainerRef.current) {
-      const scrollAmount = index * (imageContainerRef.current.scrollHeight / projects.length);
-      imageContainerRef.current.scrollTo({
-        top: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+    const container = imageContainerRef.current;
+    if (!container) return;
+    container.scrollTo({ top: index * container.clientHeight, behavior: "smooth" });
   };
 
-  const nextImage = () => {
-    setSelectedImageIndex((prev) => (prev + 1) % allProjectImages.length);
-  };
-
-  const prevImage = () => {
-    setSelectedImageIndex((prev) => (prev - 1 + allProjectImages.length) % allProjectImages.length);
-  };
-
-  // Animation variants for different elements - faster and smoother
-  const titleVariants = {
-    initial: {
-      opacity: 0,
-      y: 40,
-      scale: 0.95
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.4,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -30,
-      scale: 1.05,
-      transition: {
-        duration: 0.3,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number]
-      }
-    }
-  };
-
-  const slideFromRight = {
-    initial: {
-      opacity: 0,
-      x: 60,
-      rotate: 3
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      rotate: 0,
-      transition: {
-        duration: 0.4,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
-        delay: 0.05
-      }
-    },
-    exit: {
-      opacity: 0,
-      x: -60,
-      transition: {
-        duration: 0.3,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number]
-      }
-    }
-  };
-
-  const slideFromLeft = {
-    initial: {
-      opacity: 0,
-      x: -60,
-      rotate: -3
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      rotate: 0,
-      transition: {
-        duration: 0.4,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
-        delay: 0.1
-      }
-    },
-    exit: {
-      opacity: 0,
-      x: 60,
-      transition: {
-        duration: 0.3,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number]
-      }
-    }
-  };
-
-  const categoryVariants = {
-    initial: {
-      opacity: 0,
-      x: -20,
-      rotate: -90
-    },
-    animate: {
-      opacity: 1,
-      x: 0,
-      rotate: -90,
-      transition: {
-        duration: 0.4,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
-        delay: 0.03
-      }
-    },
-    exit: {
-      opacity: 0,
-      x: 20,
-      rotate: -90,
-      transition: {
-        duration: 0.3,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number]
-      }
-    }
-  };
-
-  const buttonVariants = {
-    initial: {
-      opacity: 0,
-      y: 30,
-      scale: 0.95
-    },
-    animate: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.4,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number],
-        delay: 0.12
-      }
-    },
-    exit: {
-      opacity: 0,
-      y: -30,
-      scale: 0.95,
-      transition: {
-        duration: 0.3,
-        ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number]
-      }
-    }
-  };
-
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading portfolio...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-secondary mx-auto mb-4" />
+          <p className="text-muted-foreground">Memuat portofolio...</p>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error || projects.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <h2 className="text-2xl font-bold mb-2">No Projects Available</h2>
           <p className="text-muted-foreground mb-4">
-            {error || 'There are no published projects at the moment.'}
+            {error || "There are no published projects at the moment."}
           </p>
           <Link href="/">
             <Button>Back to Home</Button>
@@ -299,290 +146,226 @@ export default function PortfolioPage() {
     );
   }
 
+  const stats = selectedProject
+    ? [
+        { label: "Luas", value: selectedProject.area },
+        { label: "Status", value: selectedProject.completion },
+        { label: "Tahun", value: selectedProject.year },
+      ]
+    : [];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Main Project Showcase */}
-      <section className="relative h-screen w-full overflow-hidden">
-        {/* Scrollable Images Container - This handles project navigation.
-            The after-image always lives here, so we never re-render it in the
-            overlay (that double layer was the source of the flicker). */}
-        <div
-          ref={imageContainerRef}
-          className="absolute inset-0 overflow-y-scroll scrollbar-hide"
-          style={{ scrollSnapType: 'y mandatory' }}
-        >
-          {projects.map((project, index) => (
-            <div
-              key={project.id}
-              className="relative h-screen w-full"
-              style={{ scrollSnapAlign: 'start' }}
-            >
-              <Image
-                src={project.afterImage}
-                alt={project.title}
-                fill
-                sizes="100vw"
-                className="object-cover"
-                // Preload the current and the next slide so scrolling never
-                // flashes a blank frame while the photo lazy-loads.
-                priority={
-                  index === selectedProjectIndex ||
-                  index === selectedProjectIndex + 1
-                }
-              />
-              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
-            </div>
-          ))}
-        </div>
-
-        {/* Current Image Display Overlay - gallery images ONLY.
-            When viewing the "after" image we show nothing here and let the
-            scroll layer's image come through. No mode="wait", so gallery
-            images crossfade instead of dipping to an empty frame. */}
-        <div className="absolute inset-0 z-[5] pointer-events-none">
-          <AnimatePresence>
-            {currentImageType?.type === 'gallery' && (
-              <motion.div
-                key={`gallery-${selectedProject.id}-${selectedImageIndex}`}
-                className="relative w-full h-full"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.4, ease: 'easeInOut' }}
-              >
-                <Image
-                  src={selectedProject.galleryImages[selectedImageIndex - 1]}
-                  alt={`${selectedProject.title} - ${currentImageType.label}`}
-                  fill
-                  sizes="100vw"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/30 to-transparent" />
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Animated Text Content Overlay */}
-        {selectedProject && (
-          <div className="absolute inset-0 pointer-events-none z-10">
-            <div className="h-full w-full text-white px-6 md:px-12 py-24">
-              <AnimatePresence mode="wait">
-                {/* Project Title - Top Left Area */}
-                <motion.div
-                  key={`title-${selectedProject.id}`}
-                  className="absolute top-28 left-10 md:left-16 max-w-2xl"
-                  variants={titleVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <motion.h1
-                    className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-tight"
-                    layoutId={`title-${selectedProject.id}`}
-                  >
-                    {selectedProject.title}
-                  </motion.h1>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* Area Info - Top Right */}
-                <motion.div
-                  key={`area-${selectedProject.id}`}
-                  className="absolute top-52 md:top-20 right-8 md:right-20 text-right"
-                  variants={slideFromRight}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <motion.div
-                    className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.7 }}
-                    transition={{ delay: 0.15, duration: 0.3 }}
-                  >
-                    Luas
-                  </motion.div>
-                  <div className="text-xl md:text-3xl font-bold">{selectedProject.area}</div>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* Completion - Middle Right */}
-                <motion.div
-                  key={`completion-${selectedProject.id}`}
-                  className="absolute top-1/3 right-8 md:right-28 text-right"
-                  variants={slideFromRight}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <motion.div
-                    className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.7 }}
-                    transition={{ delay: 0.18, duration: 0.3 }}
-                  >
-                    status
-                  </motion.div>
-                  <div className="text-lg md:text-2xl font-semibold">{selectedProject.completion}</div>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* Year - Below Completion */}
-                <motion.div
-                  key={`year-${selectedProject.id}`}
-                  className="absolute top-1/3 mt-20 md:mt-24 right-8 md:right-28 text-right"
-                  variants={slideFromRight}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <motion.div
-                    className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.7 }}
-                    transition={{ delay: 0.22, duration: 0.3 }}
-                  >
-                    Tahun
-                  </motion.div>
-                  <div className="text-lg md:text-2xl font-semibold">{selectedProject.year}</div>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* Location - Lower Left */}
-                <motion.div
-                  key={`location-${selectedProject.id}`}
-                  className="absolute bottom-68 md:bottom-50 left-12 md:left-10"
-                  variants={slideFromLeft}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <motion.div
-                    className="text-xs md:text-sm opacity-70 mb-1 tracking-wider"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.7 }}
-                    transition={{ delay: 0.2, duration: 0.3 }}
-                  >
-                    Lokasi
-                  </motion.div>
-                  <div className="text-lg md:text-2xl font-semibold">{selectedProject.location}</div>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* Category - Middle Left */}
-                <motion.div
-                  key={`category-${selectedProject.id}`}
-                  className="absolute top-1/2 left-8 md:left-12 origin-left"
-                  variants={categoryVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <div className="text-sm md:text-base opacity-80 tracking-[0.3em] uppercase">
-                    {selectedProject.category}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-
-              <AnimatePresence mode="wait">
-                {/* View Details Button - Using Button Component with Variants */}
-                <motion.div
-                  key={`details-btn-${selectedProject.id}`}
-                  className="absolute bottom-52 -right-20 md:bottom-44 transform -translate-x-1/2 pointer-events-auto"
-                  variants={buttonVariants}
-                  initial="initial"
-                  animate="animate"
-                  exit="exit"
-                >
-                  <Link href={`/portfolio/${selectedProject.id}`}>
-                    <Button
-                      size="lg"
-                      className="bg-primary hover:bg-primary-900 text-white shadow-lg"
-                    >
-                      Lihat Proyek Lengkap
-                    </Button>
-                  </Link>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </div>
-        )}
-
-        {/* Bottom Navigation Bar - Improved Styling */}
-        <div className="absolute bottom-0 left-0 right-0 z-20">
-          <motion.div
-            className="flex flex-col md:flex-row h-auto md:h-40 bg-background/95 backdrop-blur-md border-t border-border shadow-lg"
-            initial={{ y: 100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5, ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number], delay: 0.3 }}
+    <div className="bg-primary-950">
+      <section className="relative flex h-svh w-full flex-col overflow-hidden text-white">
+        {/* ───────── Image stage ───────── */}
+        <div className="relative min-h-0 flex-1">
+          {/* Scroll-snap layer: one full slide per project */}
+          <div
+            ref={imageContainerRef}
+            className="scrollbar-hide absolute inset-0 overflow-y-scroll"
+            style={{ scrollSnapType: "y mandatory" }}
           >
-            {/* Left Side - Portfolio Navigation with Image Thumbnails */}
-            <div className="flex items-center gap-3 px-6 py-4 md:py-0 overflow-x-auto border-b md:border-b-0 md:border-r border-border md:w-4/5">
-              {projects.map((project, index) => (
-                <button
-                  key={project.id}
-                  onClick={() => scrollToProject(index)}
-                  className={cn(
-                    "relative flex-shrink-0 w-20 h-20 md:w-24 md:h-24 rounded-sm overflow-hidden transition-all duration-300",
-                    selectedProjectIndex === index
-                      ? 'ring-2 ring-primary opacity-100'
-                      : 'opacity-50 hover:opacity-80'
-                  )}
+            {projects.map((project, index) => (
+              <div
+                key={project.id}
+                className="relative w-full overflow-hidden"
+                style={{ height: "100%", scrollSnapAlign: "start", scrollSnapStop: "always" }}
+              >
+                <motion.div
+                  className="absolute inset-0"
+                  initial={false}
+                  animate={{ scale: index === selectedProjectIndex ? 1 : 1.08 }}
+                  transition={{ duration: 1.4, ease: EASE }}
                 >
                   <Image
                     src={project.afterImage}
                     alt={project.title}
                     fill
-                    sizes="96px"
+                    sizes="100vw"
+                    className="object-cover"
+                    priority={index <= selectedProjectIndex + 1}
+                  />
+                </motion.div>
+              </div>
+            ))}
+          </div>
+
+          {/* Gallery image overlay (only when browsing gallery photos) */}
+          <div className="pointer-events-none absolute inset-0 z-[5]">
+            <AnimatePresence>
+              {galleryImage && selectedProject && (
+                <motion.div
+                  key={`gallery-${selectedProject.id}-${selectedImageIndex}`}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.45, ease: "easeInOut" }}
+                >
+                  <Image
+                    src={galleryImage}
+                    alt={`${selectedProject.title} - foto ${selectedImageIndex}`}
+                    fill
+                    sizes="100vw"
                     className="object-cover"
                   />
-                  {selectedProjectIndex === index && (
-                    <motion.div
-                      className="absolute inset-0 border-2 border-primary"
-                      layoutId={`project-thumbnail-${project.id}`}
-                      transition={{ duration: 0.25, ease: [0.6, 0.05, 0.01, 0.9] as [number, number, number, number] }}
-                    />
-                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Scrims: keep the header (top) and the text (bottom/left) legible on any photo */}
+          <div className="pointer-events-none absolute inset-0 z-[6]">
+            <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/65 to-transparent" />
+            <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-black/85 via-black/45 to-transparent" />
+            <div className="absolute inset-y-0 left-0 hidden w-2/3 bg-gradient-to-r from-black/45 to-transparent md:block" />
+          </div>
+
+          {/* Project index (desktop) */}
+          <div className="absolute right-6 top-1/2 z-10 hidden -translate-y-1/2 flex-col items-center gap-3 md:flex lg:right-10">
+            <span className="text-xs font-medium tracking-widest text-white/80 tabular-nums">
+              {pad(selectedProjectIndex + 1)}
+            </span>
+            <div className="flex flex-col gap-2.5">
+              {projects.map((project, index) => (
+                <button
+                  key={project.id}
+                  onClick={() => scrollToProject(index)}
+                  aria-label={`Go to ${project.title}`}
+                  className="group flex h-4 w-4 items-center justify-center"
+                >
+                  <span
+                    className={cn(
+                      "block rounded-full transition-all duration-300",
+                      index === selectedProjectIndex
+                        ? "h-6 w-1 bg-secondary"
+                        : "h-1.5 w-1.5 bg-white/50 group-hover:bg-white"
+                    )}
+                  />
                 </button>
               ))}
             </div>
+            <span className="text-xs tracking-widest text-white/50 tabular-nums">
+              {pad(projects.length)}
+            </span>
+          </div>
 
-            {/* Right Side - Gallery Navigation with Arrows and Counter - Using Button Variants */}
-            <div className="flex items-center justify-center px-8 py-4 md:py-0">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={prevImage}
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center transition-all",
-                  )}
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 15l-5-5 5-5" />
-                  </svg>
-                </button>
-                <div className="text-sm text-muted-foreground min-w-15 text-center">
-                  {selectedImageIndex + 1} / {allProjectImages.length}
-                </div>
-                <button
-                  onClick={nextImage}
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center transition-all",
-                  )}
-                >
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M8 15l5-5-5-5" />
-                  </svg>
-                </button>
+          {/* Project info */}
+          {selectedProject && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 px-5 pb-6 md:px-12 md:pb-10">
+              <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between md:gap-10 md:pr-16">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`info-${selectedProject.id}`}
+                    className="max-w-2xl"
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4, ease: EASE }}
+                  >
+                    <span className="inline-block rounded-full border border-secondary/70 bg-secondary/25 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white backdrop-blur-sm">
+                      {selectedProject.category}
+                    </span>
+                    <h1 className="mt-3 text-3xl font-bold leading-[1.05] tracking-tight drop-shadow-md sm:text-4xl md:text-5xl lg:text-6xl">
+                      {selectedProject.title}
+                    </h1>
+                    <p className="mt-3 flex items-center gap-1.5 text-sm text-white/85 md:text-base">
+                      <MapPin className="h-4 w-4 shrink-0 text-secondary-300" />
+                      {selectedProject.location}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`meta-${selectedProject.id}`}
+                    className="pointer-events-auto flex flex-col gap-3 md:items-end"
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -16 }}
+                    transition={{ duration: 0.4, ease: EASE, delay: 0.06 }}
+                  >
+                    <dl className="grid grid-cols-3 divide-x divide-white/15 rounded-xl border border-white/15 bg-black/35 py-3 backdrop-blur-md">
+                      {stats.map((stat) => (
+                        <div key={stat.label} className="px-4 md:px-5">
+                          <dt className="text-[10px] uppercase tracking-[0.2em] text-white/60">
+                            {stat.label}
+                          </dt>
+                          <dd className="mt-1 text-sm font-semibold md:text-base">{stat.value}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <Link href={`/portfolio/${selectedProject.id}`} className="self-start md:self-end">
+                      <Button
+                        size="lg"
+                        className="group bg-secondary text-white shadow-lg hover:bg-secondary-600"
+                      >
+                        Lihat Proyek Lengkap
+                        <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                      </Button>
+                    </Link>
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </div>
-          </motion.div>
+          )}
         </div>
+
+        {/* ───────── Bottom navigation bar ───────── */}
+        <motion.div
+          className="relative z-20 flex shrink-0 items-center gap-2 border-t border-white/10 bg-primary-950 px-4 py-3 md:gap-6 md:px-10 md:py-4"
+          initial={{ y: 60, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.6, ease: EASE, delay: 0.2 }}
+        >
+          <div className="scrollbar-hide flex min-w-0 flex-1 items-center gap-2.5 overflow-x-auto py-1 md:gap-3">
+            {projects.map((project, index) => (
+              <button
+                key={project.id}
+                onClick={() => scrollToProject(index)}
+                aria-label={project.title}
+                aria-current={selectedProjectIndex === index}
+                className={cn(
+                  "relative h-14 w-14 shrink-0 overflow-hidden rounded-md transition-all duration-300 md:h-[4.5rem] md:w-[4.5rem]",
+                  selectedProjectIndex === index
+                    ? "opacity-100 ring-2 ring-secondary ring-offset-2 ring-offset-primary-950"
+                    : "opacity-55 hover:opacity-90"
+                )}
+              >
+                <Image
+                  src={project.afterImage}
+                  alt=""
+                  fill
+                  sizes="72px"
+                  className="object-cover"
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Photo navigation for the active project */}
+          {imageCount > 1 && (
+            <div className="flex shrink-0 items-center gap-1 rounded-full border border-white/15 bg-white/5 p-1">
+              <button
+                onClick={prevImage}
+                aria-label="Previous photo"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </button>
+              <span className="min-w-12 text-center text-xs tabular-nums text-white/80">
+                {selectedImageIndex + 1} / {imageCount}
+              </span>
+              <button
+                onClick={nextImage}
+                aria-label="Next photo"
+                className="flex h-9 w-9 items-center justify-center rounded-full text-white/80 transition-colors hover:bg-white/15 hover:text-white"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+          )}
+        </motion.div>
       </section>
 
       <style jsx global>{`

@@ -1,5 +1,5 @@
 // app/layout.tsx
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
@@ -25,7 +25,6 @@ export async function generateMetadata(): Promise<Metadata> {
       description: metadataSettings?.siteDescription || "Premium interior design and architecture services for your dream home",
       keywords: metadataSettings?.keywords || ["interior design", "architecture", "home improvement"],
       authors: [{ name: metadataSettings?.author || "Home & Space Improvement Studio" }],
-      themeColor: metadataSettings?.themeColor || "#9C7E5A",
       icons: {
         icon: faviconSettings?.favicon || "/favicon.ico",
         apple: faviconSettings?.appleTouchIcon || undefined,
@@ -56,6 +55,15 @@ export async function generateMetadata(): Promise<Metadata> {
       title: "Home & Space Improvement Studio",
       description: "Premium interior design and architecture services for your dream home",
     };
+  }
+}
+
+export async function generateViewport(): Promise<Viewport> {
+  try {
+    const metadataSettings = await getMetadataSettings();
+    return { themeColor: metadataSettings?.themeColor || "#9C7E5A" };
+  } catch {
+    return { themeColor: "#9C7E5A" };
   }
 }
 

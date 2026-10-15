@@ -9,8 +9,14 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 import { Loader2, Upload, Save } from 'lucide-react';
-import { Toaster, toast as sonnerToast } from 'sonner';
+import { toast as sonnerToast } from 'sonner';
+import {
+  DEFAULT_WHATSAPP_CONFIG,
+  buildWhatsAppLink,
+  type WhatsAppButtonConfig,
+} from '@/lib/whatsapp-config';
 
 interface MetadataSettings {
   id?: number;
@@ -35,6 +41,7 @@ interface FaviconSettings {
 export default function SettingsPage() {
   const [metadataSettings, setMetadataSettings] = useState<MetadataSettings>({});
   const [faviconSettings, setFaviconSettings] = useState<FaviconSettings>({});
+  const [whatsappSettings, setWhatsappSettings] = useState<WhatsAppButtonConfig>(DEFAULT_WHATSAPP_CONFIG);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -42,10 +49,16 @@ export default function SettingsPage() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const [metadataRes, faviconRes] = await Promise.all([
+        const [metadataRes, faviconRes, whatsappRes] = await Promise.all([
           fetch('/api/admin/settings/metadata'),
           fetch('/api/admin/settings/favicon'),
+          fetch('/api/admin/settings/whatsapp'),
         ]);
+
+        if (whatsappRes.ok) {
+          const whatsappData = await whatsappRes.json();
+          if (whatsappData.data) setWhatsappSettings(whatsappData.data);
+        }
 
         if (metadataRes.ok) {
           const metadataData = await metadataRes.json();
@@ -110,6 +123,31 @@ export default function SettingsPage() {
     } catch (error) {
       console.error('Error saving favicon settings:', error);
       sonnerToast.error('Failed to save favicon settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleWhatsAppSave = async () => {
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/admin/settings/whatsapp', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(whatsappSettings),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save WhatsApp settings');
+      }
+      const result = await response.json();
+      if (result.data) setWhatsappSettings(result.data);
+      sonnerToast.success('WhatsApp button settings saved successfully');
+    } catch (error) {
+      console.error('Error saving WhatsApp settings:', error);
+      sonnerToast.error('Failed to save WhatsApp settings');
     } finally {
       setIsSaving(false);
     }
@@ -193,6 +231,7 @@ export default function SettingsPage() {
           <TabsList>
             <TabsTrigger value="metadata">Metadata</TabsTrigger>
             <TabsTrigger value="favicon">Favicon & Images</TabsTrigger>
+            <TabsTrigger value="whatsapp">WhatsApp Button</TabsTrigger>
           </TabsList>
           <TabsContent value="metadata" className="space-y-4">
             <Card>
@@ -452,9 +491,118 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
           </TabsContent>
+          <TabsContent value="whatsapp" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Floating WhatsApp Button</CardTitle>
+                <CardDescription>
+                  A button shown in the corner of every public page, after the intro screen.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div>
+                    <Label htmlFor="waEnabled" className="text-base">Show WhatsApp button</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Turn the button on or off across the website.
+                    </p>
+                  </div>
+                  <Switch
+                    id="waEnabled"
+                    checked={whatsappSettings.enabled}
+                    onCheckedChange={(checked) => setWhatsappSettings(prev => ({ ...prev, enabled: checked }))}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="waPhone">WhatsApp Number</Label>
+                    <Input
+                      id="waPhone"
+                      inputMode="tel"
+                      value={whatsappSettings.phoneNumber}
+                      onChange={(e) => setWhatsappSettings(prev => ({ ...prev, phoneNumber: e.target.value }))}
+                      placeholder="6281234567890"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Include the country code (a leading 0 is converted to 62).
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="waLabel">Tooltip Text</Label>
+                    <Input
+                      id="waLabel"
+                      value={whatsappSettings.label}
+                      maxLength={40}
+                      onChange={(e) => setWhatsappSettings(prev => ({ ...prev, label: e.target.value }))}
+                      placeholder="Chat WhatsApp"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Shown when hovering the icon and read by screen readers.
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="waMessage">Pre-filled Message</Label>
+                  <Textarea
+                    id="waMessage"
+                    rows={3}
+                    value={whatsappSettings.message}
+                    onChange={(e) => setWhatsappSettings(prev => ({ ...prev, message: e.target.value }))}
+                    placeholder="Halo, saya tertarik untuk berkonsultasi..."
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Position</Label>
+                    <div className="flex gap-2">
+                      {(['right', 'left'] as const).map((side) => (
+                        <Button
+                          key={side}
+                          type="button"
+                          variant={whatsappSettings.position === side ? 'default' : 'outline'}
+                          className="flex-1 capitalize"
+                          onClick={() => setWhatsappSettings(prev => ({ ...prev, position: side }))}
+                        >
+                          Bottom {side}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between gap-4 pt-4">
+                  {whatsappSettings.phoneNumber ? (
+                    <a
+                      href={buildWhatsAppLink(whatsappSettings.phoneNumber, whatsappSettings.message)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+                    >
+                      Test link
+                    </a>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      Add a number to display the button.
+                    </span>
+                  )}
+                  <Button onClick={handleWhatsAppSave} disabled={isSaving}>
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" />
+                        Save Changes
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
-      <Toaster />
     </>
   );
 }

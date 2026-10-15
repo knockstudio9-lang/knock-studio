@@ -2,6 +2,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Pin the Turbopack root to this project so it always resolves `next` from
+  // ./node_modules (avoids "Next.js package not found" panics on Windows)
+  turbopack: {
+    root: __dirname,
+  },
   images: {
     remotePatterns: [
       // Unsplash images

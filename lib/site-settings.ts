@@ -2,6 +2,11 @@
 import { db } from './db';
 import { siteSettings, type SiteSetting, type NewSiteSetting } from './db/schema';
 import { eq } from 'drizzle-orm';
+import {
+  sanitizeWhatsAppConfig,
+  normalizePhoneNumber,
+  type WhatsAppButtonConfig,
+} from './whatsapp-config';
 
 export async function getSiteSettings() {
   try {
@@ -120,6 +125,54 @@ export async function updateMetadataSettings(data: {
   } catch (error) {
     console.error('Error updating metadata settings:', error);
     throw new Error('Failed to update metadata settings');
+  }
+}
+
+// WhatsApp button settings are stored as JSON in the `siteDescription` text column
+// of the row with key 'whatsapp', so no schema migration is needed.
+export async function getWhatsAppSettings(): Promise<WhatsAppButtonConfig> {
+  try {
+    const setting = await getSiteSettingByKey('whatsapp');
+    let stored: Partial<WhatsAppButtonConfig> | null = null;
+    if (setting?.siteDescription) {
+      try {
+        stored = JSON.parse(setting.siteDescription);
+      } catch {
+        stored = null;
+      }
+    }
+    const config = sanitizeWhatsAppConfig(stored);
+    // Fall back to the number already used by the contact form
+    if (!config.phoneNumber && process.env.WHATSAPP_NUMBER) {
+      config.phoneNumber = normalizePhoneNumber(process.env.WHATSAPP_NUMBER);
+    }
+    return config;
+  } catch (error) {
+    console.error('Error fetching WhatsApp settings:', error);
+    throw new Error('Failed to fetch WhatsApp settings');
+  }
+}
+
+export async function updateWhatsAppSettings(data: Partial<WhatsAppButtonConfig>) {
+  try {
+    const config = sanitizeWhatsAppConfig(data);
+    const json = JSON.stringify(config);
+    const existingSetting = await getSiteSettingByKey('whatsapp');
+
+    if (existingSetting) {
+      await db
+        .update(siteSettings)
+        .set({ siteDescription: json, updatedAt: new Date() })
+        .where(eq(siteSettings.id, existingSetting.id));
+    } else {
+      await db
+        .insert(siteSettings)
+        .values({ key: 'whatsapp', siteName: 'WhatsApp Button', siteDescription: json });
+    }
+    return config;
+  } catch (error) {
+    console.error('Error updating WhatsApp settings:', error);
+    throw new Error('Failed to update WhatsApp settings');
   }
 }
 
