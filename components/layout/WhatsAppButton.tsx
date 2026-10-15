@@ -75,15 +75,15 @@ export default function WhatsAppButton() {
           className={`fixed z-50 ${
             // the portfolio list has its own bottom bar – sit above it
             pathname === "/portfolio"
-              ? "bottom-[7.5rem]"
-              : "bottom-[max(1rem,env(safe-area-inset-bottom))]"
+              ? "bottom-[6.25rem] md:bottom-[8rem]"
+              : "bottom-[max(1.25rem,env(safe-area-inset-bottom))]"
           } ${
             config.position === "left"
-              ? "left-[max(1rem,env(safe-area-inset-left))]"
-              : "right-[max(1rem,env(safe-area-inset-right))]"
-          } flex h-11 w-11 items-center justify-center rounded-full bg-secondary text-white shadow-md shadow-black/25 ring-1 ring-white/20 transition-colors hover:bg-secondary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white`}
+              ? "left-[max(1.25rem,env(safe-area-inset-left))]"
+              : "right-[max(1.25rem,env(safe-area-inset-right))]"
+          } flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-full bg-secondary text-white shadow-md shadow-black/25 ring-1 ring-white/20 transition-colors hover:bg-secondary-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white`}
         >
-          <WhatsAppGlyph className="h-5 w-5" />
+          <WhatsAppGlyph className="h-7 w-7 md:h-8 md:w-8" />
         </motion.a>
       )}
     </AnimatePresence>
