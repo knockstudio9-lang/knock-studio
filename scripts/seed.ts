@@ -25,6 +25,17 @@ const pool = new Pool({
 const db = drizzle(pool);
 
 /**
+ * Turn a title into a Cloudinary-safe folder name (no &, ?, %, etc.)
+ */
+function slugify(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+/**
  * Upload an image to Cloudinary
  * @param imagePath - Path to the image file (local path or URL)
  * @param folder - Cloudinary folder name
@@ -275,21 +286,74 @@ const sampleProjects = [
     ],
     tags: ["Modern", "Minimalist", "House"],
   },
+  {
+    title: "Griya Rajawali Bintaro",
+    category: "Home Renovation",
+    location: "Griya Rajawali Bintaro, Tangerang Selatan",
+    year: "2026",
+    area: "120m²",
+    completion: "2026",
+    description: "Renovasi total kamar mandi dan area sirkulasi tangga rumah ini menghadirkan nuansa minimalis modern dengan keramik abu-abu bertekstur, bathtub batu alam, partisi kaca, serta panel kayu vertikal berwarna hangat pada area koridor.",
+    beforeImagePath: "",
+    afterImagePath: path.join(process.cwd(), 'public/portfolio/10/after.jpg'),
+    galleryImagePaths: [
+      path.join(process.cwd(), 'public/portfolio/10/gallery1.jpg'),
+      path.join(process.cwd(), 'public/portfolio/10/gallery2.jpg'),
+      path.join(process.cwd(), 'public/portfolio/10/gallery3.jpg'),
+      path.join(process.cwd(), 'public/portfolio/10/gallery4.jpg'),
+      path.join(process.cwd(), 'public/portfolio/10/gallery5.jpg'),
+      path.join(process.cwd(), 'public/portfolio/10/gallery6.jpg'),
+    ],
+    tags: ["Modern", "Minimalist", "Bathroom"],
+  },
+  {
+    title: "River Valley Residence",
+    category: "Home Renovation",
+    location: "River Valley Residence - Cirendeu, Lebak Bulus",
+    year: "2026",
+    area: "165m²",
+    completion: "2026",
+    description: "Renovasi dan interior rumah dua lantai ini menampilkan fasad putih bersih berpadu panel kayu, void bercahaya alami dengan glass block, serta ruang dalam lapang berlantai granit tile mengkilap dan lampu cove yang hangat.",
+    beforeImagePath: path.join(process.cwd(), 'public/portfolio/11/before.jpg'),
+    afterImagePath: path.join(process.cwd(), 'public/portfolio/11/after.webp'),
+    galleryImagePaths: [
+      path.join(process.cwd(), 'public/portfolio/11/gallery1.webp'),
+      path.join(process.cwd(), 'public/portfolio/11/gallery2.webp'),
+      path.join(process.cwd(), 'public/portfolio/11/gallery3.webp'),
+      path.join(process.cwd(), 'public/portfolio/11/gallery4.webp'),
+      path.join(process.cwd(), 'public/portfolio/11/gallery5.webp'),
+      path.join(process.cwd(), 'public/portfolio/11/gallery6.webp'),
+    ],
+    tags: ["Modern", "Minimalist", "Renovation"],
+  },
 ];
 
 async function seedProjects() {
   console.log('🌱 Starting database seeding...\n');
 
   try {
-    // Clear existing projects (optional - comment out if you want to keep existing data)
-    console.log('Clearing existing projects...');
-    await db.delete(projects);
-    console.log('✓ Existing projects cleared\n');
+    // Usage: tsx scripts/seed.ts --append [--only "Title A,Title B"]
+    // --append keeps existing rows; --only limits which sample projects are inserted.
+    const args = process.argv.slice(2);
+    const append = args.includes('--append');
+    const onlyIdx = args.indexOf('--only');
+    const onlyTitles = onlyIdx >= 0 ? args[onlyIdx + 1].split(',').map((t) => t.trim()) : null;
+    const projectsToSeed = onlyTitles
+      ? sampleProjects.filter((p) => onlyTitles.includes(p.title))
+      : sampleProjects;
+
+    if (append) {
+      console.log('Append mode: keeping existing projects\n');
+    } else {
+      console.log('Clearing existing projects...');
+      await db.delete(projects);
+      console.log('✓ Existing projects cleared\n');
+    }
 
     let successfulSeeds = 0;
 
-    for (const [index, project] of sampleProjects.entries()) {
-      console.log(`\n📦 Processing project ${index + 1}/${sampleProjects.length}: ${project.title}`);
+    for (const [index, project] of projectsToSeed.entries()) {
+      console.log(`\n📦 Processing project ${index + 1}/${projectsToSeed.length}: ${project.title}`);
 
       // Upload before image (only if it exists)
       let beforeImage = null;
@@ -297,7 +361,7 @@ async function seedProjects() {
         console.log('Uploading before image...');
         beforeImage = await uploadToCloudinary(
           project.beforeImagePath,
-          `projects/${project.title.toLowerCase().replace(/\s+/g, '-')}`
+          `projects/${slugify(project.title)}`
         );
       }
 
@@ -305,7 +369,7 @@ async function seedProjects() {
       console.log('Uploading after image...');
       const afterImage = await uploadToCloudinary(
         project.afterImagePath,
-        `projects/${project.title.toLowerCase().replace(/\s+/g, '-')}`
+        `projects/${slugify(project.title)}`
       );
 
       // Upload gallery images
@@ -316,7 +380,7 @@ async function seedProjects() {
       for (const imagePath of project.galleryImagePaths) {
         const uploaded = await uploadToCloudinary(
           imagePath,
-          `projects/${project.title.toLowerCase().replace(/\s+/g, '-')}/gallery`
+          `projects/${slugify(project.title)}/gallery`
         );
         if (uploaded) {
           galleryImages.push(uploaded.url);
@@ -353,9 +417,9 @@ async function seedProjects() {
     }
 
     console.log('\n\n✅ Database seeding completed!');
-    console.log(`📊 Total projects processed: ${sampleProjects.length}`);
+    console.log(`📊 Total projects processed: ${projectsToSeed.length}`);
     console.log(`📊 Successfully seeded: ${successfulSeeds}`);
-    console.log(`📊 Skipped: ${sampleProjects.length - successfulSeeds}`);
+    console.log(`📊 Skipped: ${projectsToSeed.length - successfulSeeds}`);
   } catch (error) {
     console.error('\n❌ Error seeding database:', error);
     throw error;
